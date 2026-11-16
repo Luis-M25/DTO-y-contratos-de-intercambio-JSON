@@ -139,14 +139,6 @@ database/
 ├─ factories/
 ├─ migrations/
 └─ seeders/
-docs/
-├─ 01-actividad-1-proceso.md
-├─ 02-actividad-2-contrato.md
-├─ 03-actividad-3-implementacion.md
-├─ 04-actividad-4-pruebas.md
-├─ 05-reflexion.md
-├─ 06-diagrama.md
-└─ evidencias/
 postman/
 routes/api.php
 tests/Feature/SolicitudCitaTest.php
