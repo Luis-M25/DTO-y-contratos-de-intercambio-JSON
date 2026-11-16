@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('solicitud_citas', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->foreignUuid('paciente_id')
+                ->constrained('pacientes')
+                ->cascadeOnDelete();
+            $table->date('fecha');
+            $table->time('hora_inicio');
+            $table->time('hora_fin');
+            $table->string('tipo');
+            $table->string('motivo');
+            $table->string('canal');
+            $table->text('observacion')->nullable();
+            $table->string('estado')->default('pendiente');
+            $table->timestamps();
+
+            $table->index(['paciente_id', 'fecha']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('solicitud_citas');
+    }
+};

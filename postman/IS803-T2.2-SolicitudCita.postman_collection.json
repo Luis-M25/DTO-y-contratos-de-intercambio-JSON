@@ -1,0 +1,480 @@
+{
+  "info": {
+    "_postman_id": "7f3c1a2b-4d5e-4f60-8a91-2b3c4d5e6f70",
+    "name": "IS803 T2.2 - Solicitud de cita",
+    "description": "Pruebas del contrato JSON para el endpoint POST /api/v1/solicitudes-cita.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 - Listar pacientes",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "",
+              "pm.test('Lista de pacientes disponible', function () {",
+              "    pm.expect(json.data).to.be.an('array').that.is.not.empty;",
+              "});",
+              "",
+              "pm.collectionVariables.set('paciente_id', json.data[0].paciente_id);",
+              "pm.environment.set('paciente_id', json.data[0].paciente_id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/pacientes",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "pacientes"
+          ]
+        }
+      }
+    },
+    {
+      "name": "P1 - Solicitud valida",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "",
+              "pm.test('Contrato de respuesta', function () {",
+              "    pm.expect(json).to.have.property('data');",
+              "    pm.expect(json.data).to.include.keys('solicitud_id', 'paciente_id', 'fecha', 'hora_inicio', 'hora_fin', 'tipo', 'canal', 'estado', 'creado_en');",
+              "    pm.expect(json.data.estado).to.eql('pendiente');",
+              "    pm.expect(json.data.fecha).to.eql('2026-11-20');",
+              "    pm.expect(json.data.hora_inicio).to.eql('09:30');",
+              "    pm.expect(json.data.hora_fin).to.eql('10:00');",
+              "});",
+              "",
+              "pm.collectionVariables.set('solicitud_id', json.data.solicitud_id);",
+              "pm.environment.set('solicitud_id', json.data.solicitud_id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"paciente_id\": \"{{paciente_id}}\",\n  \"fecha\": \"2026-11-20\",\n  \"hora_inicio\": \"09:30\",\n  \"hora_fin\": \"10:00\",\n  \"tipo\": \"consulta\",\n  \"motivo\": \"Dolor dental\",\n  \"canal\": \"web\",\n  \"observacion\": \"Primera consulta\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solicitudes-cita"
+          ]
+        }
+      }
+    },
+    {
+      "name": "P2 - Falta motivo",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 422', function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "",
+              "pm.test('Error de validacion en motivo', function () {",
+              "    pm.expect(json).to.have.property('errors');",
+              "    pm.expect(json.errors).to.have.property('motivo');",
+              "    pm.expect(json).to.not.have.property('data');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"paciente_id\": \"{{paciente_id}}\",\n  \"fecha\": \"2026-11-20\",\n  \"hora_inicio\": \"09:30\",\n  \"hora_fin\": \"10:00\",\n  \"tipo\": \"consulta\",\n  \"canal\": \"web\",\n  \"observacion\": \"Sin motivo\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solicitudes-cita"
+          ]
+        }
+      }
+    },
+    {
+      "name": "P3 - Tipo incorrecto",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 422', function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "",
+              "pm.test('Error de tipo en paciente_id', function () {",
+              "    pm.expect(json).to.have.property('errors');",
+              "    pm.expect(json.errors).to.have.property('paciente_id');",
+              "    pm.expect(json).to.not.have.property('data');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"paciente_id\": [\"no-es-uuid\"],\n  \"fecha\": \"2026-11-20\",\n  \"hora_inicio\": \"09:30\",\n  \"hora_fin\": \"10:00\",\n  \"tipo\": \"consulta\",\n  \"motivo\": \"Dolor dental\",\n  \"canal\": \"web\",\n  \"observacion\": \"Tipo incorrecto\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solicitudes-cita"
+          ]
+        }
+      }
+    },
+    {
+      "name": "P4 - Fecha con formato incorrecto",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 422', function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "",
+              "pm.test('Error de formato en fecha', function () {",
+              "    pm.expect(json).to.have.property('errors');",
+              "    pm.expect(json.errors).to.have.property('fecha');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"paciente_id\": \"{{paciente_id}}\",\n  \"fecha\": \"20/11/2026\",\n  \"hora_inicio\": \"09:30\",\n  \"hora_fin\": \"10:00\",\n  \"tipo\": \"consulta\",\n  \"motivo\": \"Dolor dental\",\n  \"canal\": \"web\",\n  \"observacion\": \"Fecha incorrecta\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solicitudes-cita"
+          ]
+        }
+      }
+    },
+    {
+      "name": "P5 - Hora fin anterior",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 422', function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "",
+              "pm.test('Error de rango en hora_fin', function () {",
+              "    pm.expect(json).to.have.property('errors');",
+              "    pm.expect(json.errors).to.have.property('hora_fin');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"paciente_id\": \"{{paciente_id}}\",\n  \"fecha\": \"2026-11-20\",\n  \"hora_inicio\": \"09:30\",\n  \"hora_fin\": \"09:00\",\n  \"tipo\": \"consulta\",\n  \"motivo\": \"Dolor dental\",\n  \"canal\": \"web\",\n  \"observacion\": \"Hora incorrecta\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solicitudes-cita"
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET - Listar solicitudes",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "",
+              "pm.test('Lista de solicitudes', function () {",
+              "    pm.expect(json.data).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solicitudes-cita"
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET - Detalle de solicitud",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "",
+              "pm.test('Contrato de detalle', function () {",
+              "    pm.expect(json.data).to.include.keys('solicitud_id', 'paciente_id', 'fecha', 'hora_inicio', 'hora_fin', 'tipo', 'canal', 'estado', 'creado_en');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita/{{solicitud_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solicitudes-cita",
+            "{{solicitud_id}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "GET - Solicitud inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 404', function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita/00000000-0000-4000-8000-000000000000",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solicitudes-cita",
+            "00000000-0000-4000-8000-000000000000"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "paciente_id",
+      "value": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "key": "solicitud_id",
+      "value": ""
+    }
+  ]
+}
