@@ -161,6 +161,25 @@ tests/Feature/SolicitudCitaTest.php
 - [Reflexión individual](docs/05-reflexion.md)
 - [Diagrama](docs/06-diagrama.md)
 
+## Checklist de entrega
+
+- [x] Actividad 1: proceso, actores y endpoint documentados.
+- [x] Actividad 2: contrato de solicitud, respuesta y error.
+- [x] Actividad 3: endpoint Laravel con validación y serialización.
+- [x] Actividad 4: pruebas P1 a P5 y colección Postman.
+- [x] Diagrama de intercambio.
+- [x] Reflexión individual.
+- [x] README con instrucciones.
+- [ ] Capturas `p1.png`, `p2.png` y `p3.png` en `docs/evidencias/`.
+- [ ] Subir las capturas al repositorio.
+- [ ] Verificar que el repositorio sea accesible para el docente.
+
+## Notas de entorno
+
+- Se habilitaron `pdo_sqlite` y `sqlite3` en `php.ini`; el respaldo quedó en `php.ini.bak-is803`.
+- El servidor local se inicia con `start-server.bat` o con `php -S 127.0.0.1:8000 -t public router.php`.
+- La base SQLite local (`database/database.sqlite`) y el archivo `.env` no se versionan.
+
 ## Nota académica
 
 El dominio y la arquitectura se basan en el proyecto de aula **proyect_clinico** (Laravel 12), en particular en la entidad `Agenda` y el proceso de registro de citas. La implementación de esta práctica es individual y vive en este repositorio para no mezclarse con el repositorio del equipo.
