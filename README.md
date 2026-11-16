@@ -40,6 +40,8 @@ php artisan migrate:fresh --seed
 php -S 127.0.0.1:8000 -t public router.php
 ```
 
+También puedes hacer doble clic en `start-server.bat`.
+
 > Alternativa: `php artisan serve --host=127.0.0.1 --port=8000` si tu instalación de Laravel incluye el archivo `resources/server.php`.
 
 La API queda disponible en `http://127.0.0.1:8000/api/v1`.
