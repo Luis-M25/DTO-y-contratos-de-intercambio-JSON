@@ -152,16 +152,6 @@ routes/api.php
 tests/Feature/SolicitudCitaTest.php
 ```
 
-## Documentación de la práctica
-
-- [Actividad 1 · Proceso](docs/01-actividad-1-proceso.md)
-- [Actividad 2 · Contrato JSON](docs/02-actividad-2-contrato.md)
-- [Actividad 3 · Implementación](docs/03-actividad-3-implementacion.md)
-- [Actividad 4 · Pruebas](docs/04-actividad-4-pruebas.md)
-- [Reflexión individual](docs/05-reflexion.md)
-- [Diagrama](docs/06-diagrama.md)
-
-
 ## Notas de entorno
 
 - Se habilitaron `pdo_sqlite` y `sqlite3` en `php.ini`; el respaldo quedó en `php.ini.bak-is803`.
