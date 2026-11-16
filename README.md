@@ -20,12 +20,13 @@ Práctica individual del tema **2.2 Capa de intercambio de información semánti
 - PHP 8.3 con las extensiones `pdo_sqlite` y `sqlite3` habilitadas.
 - Git.
 - Postman (para las evidencias).
-- Composer es opcional: el repositorio incluye `composer.lock`, pero no `vendor/`. Si necesitas instalarlo, ejecuta `composer install`.
+- Composer (solo si clonas el repositorio desde cero; en este equipo ya existe `vendor/`).
 
 ## Instalación
 
 ```powershell
 cd C:\proyecto\DTO-y-contratos-de-intercambio-JSON
+composer install          # solo si no existe la carpeta vendor/
 copy .env.example .env
 php artisan key:generate
 type nul > database\database.sqlite
