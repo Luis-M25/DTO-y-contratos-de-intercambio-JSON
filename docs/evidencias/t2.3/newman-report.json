@@ -1,0 +1,3168 @@
+{
+  "collection": {
+    "_": {
+      "postman_id": "9c4e7a11-6b2d-4f83-9a10-7d5e2c8b4f31"
+    },
+    "item": [
+      {
+        "id": "c4f2f4db-ea88-47d9-9b81-5a27c6f06e6d",
+        "name": "P1 - Formulario web valido",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "v1",
+              "solicitudes-cita",
+              "importar"
+            ],
+            "host": [
+              "{{base_url}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"origen\": \"formulario_web\",\n  \"datos\": {\n    \"cedula\": \"0102030405\",\n    \"fechaCita\": \"{{fecha_formulario}}\",\n    \"horaInicio\": \"3:30 PM\",\n    \"horaFin\": \"4:00 PM\",\n    \"tipoCita\": \"Consulta\",\n    \"motivo\": \"Dolor dental\",\n    \"observacion\": \"\"\n  }\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "f2de27b3-3e7f-419c-a415-97a1d6e37d1b",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status 201', function () {",
+                "    pm.response.to.have.status(201);",
+                "});",
+                "",
+                "const json = pm.response.json();",
+                "",
+                "pm.test('Contrato comun normalizado', function () {",
+                "    pm.expect(json.data).to.include.keys('solicitud_id', 'paciente_id', 'fecha', 'hora_inicio', 'hora_fin', 'tipo', 'canal', 'estado', 'creado_en');",
+                "    pm.expect(json.data.fecha).to.eql(pm.collectionVariables.get('fecha_iso'));",
+                "    pm.expect(json.data.hora_inicio).to.eql('15:30');",
+                "    pm.expect(json.data.hora_fin).to.eql('16:00');",
+                "    pm.expect(json.data.tipo).to.eql('consulta');",
+                "    pm.expect(json.data.canal).to.eql('web');",
+                "    pm.expect(json.data.estado).to.eql('pendiente');",
+                "});",
+                "",
+                "pm.collectionVariables.set('p1_solicitud_id', json.data.solicitud_id);",
+                "pm.collectionVariables.set('p1_paciente_id', json.data.paciente_id);",
+                "pm.collectionVariables.set('p1_fecha', json.data.fecha);",
+                "pm.collectionVariables.set('p1_hora_inicio', json.data.hora_inicio);",
+                "pm.collectionVariables.set('p1_hora_fin', json.data.hora_fin);",
+                "pm.collectionVariables.set('p1_tipo', json.data.tipo);",
+                "pm.collectionVariables.set('p1_estado', json.data.estado);"
+              ],
+              "_lastExecutionId": "a6d3136b-bbe3-4ccf-b755-bdc85c4e40aa"
+            }
+          }
+        ]
+      },
+      {
+        "id": "4201fad7-6f39-4b49-8fd1-9e6be1af0010",
+        "name": "P2 - Servicio externo equivalente",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "v1",
+              "solicitudes-cita",
+              "importar"
+            ],
+            "host": [
+              "{{base_url}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"origen\": \"servicio_externo\",\n  \"datos\": {\n    \"patient\": {\n      \"document_number\": \"010-203-0405\"\n    },\n    \"appointment\": {\n      \"date\": \"{{fecha_iso}}\",\n      \"start_time\": \"15:30\",\n      \"end_time\": \"16:00\",\n      \"type\": \"consultation\"\n    },\n    \"reason\": \"Dolor dental\",\n    \"notes\": null\n  }\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "6957b50c-1e51-4c29-ab6b-1fb5d4f3cd15",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status 201', function () {",
+                "    pm.response.to.have.status(201);",
+                "});",
+                "",
+                "const json = pm.response.json();",
+                "",
+                "pm.test('Mismo contrato que P1', function () {",
+                "    const campos = ['paciente_id', 'fecha', 'hora_inicio', 'hora_fin', 'tipo', 'estado'];",
+                "    campos.forEach(function (campo) {",
+                "        pm.expect(json.data[campo]).to.eql(pm.collectionVariables.get('p1_' + campo));",
+                "    });",
+                "});",
+                "",
+                "pm.test('Canal del servicio externo', function () {",
+                "    pm.expect(json.data.canal).to.eql('movil');",
+                "});"
+              ],
+              "_lastExecutionId": "3d564b49-a548-43e8-a355-eca8e0ba7a51"
+            }
+          }
+        ]
+      },
+      {
+        "id": "6051fc9c-8590-47f9-81be-b8b69af3a5a0",
+        "name": "P3 - Formulario sin motivo",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "v1",
+              "solicitudes-cita",
+              "importar"
+            ],
+            "host": [
+              "{{base_url}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"origen\": \"formulario_web\",\n  \"datos\": {\n    \"cedula\": \"0102030405\",\n    \"fechaCita\": \"{{fecha_formulario}}\",\n    \"horaInicio\": \"3:30 PM\",\n    \"horaFin\": \"4:00 PM\",\n    \"tipoCita\": \"Consulta\",\n    \"observacion\": \"\"\n  }\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "6d3417dc-df49-45d4-9a05-9047e3050951",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status 422', function () {",
+                "    pm.response.to.have.status(422);",
+                "});",
+                "",
+                "const json = pm.response.json();",
+                "",
+                "pm.test('Error explicito en motivo', function () {",
+                "    pm.expect(json).to.have.property('errors');",
+                "    pm.expect(json.errors).to.have.property('motivo');",
+                "    pm.expect(json).to.not.have.property('data');",
+                "});"
+              ],
+              "_lastExecutionId": "8f40c12e-3740-45bc-857f-72dc26caacc2"
+            }
+          }
+        ]
+      },
+      {
+        "id": "a9d5c0a6-fef4-48d6-b47d-97d34c1a77c4",
+        "name": "P4 - Fecha inexistente",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "v1",
+              "solicitudes-cita",
+              "importar"
+            ],
+            "host": [
+              "{{base_url}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"origen\": \"formulario_web\",\n  \"datos\": {\n    \"cedula\": \"0102030405\",\n    \"fechaCita\": \"31/02/2026\",\n    \"horaInicio\": \"3:30 PM\",\n    \"horaFin\": \"4:00 PM\",\n    \"tipoCita\": \"Consulta\",\n    \"motivo\": \"Dolor dental\"\n  }\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "60b8505d-6ec8-4629-9142-167800c40efb",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status 422', function () {",
+                "    pm.response.to.have.status(422);",
+                "});",
+                "",
+                "const json = pm.response.json();",
+                "",
+                "pm.test('Error de calendario en fecha', function () {",
+                "    pm.expect(json).to.have.property('errors');",
+                "    pm.expect(json.errors).to.have.property('fecha');",
+                "    pm.expect(json.errors.fecha[0]).to.include('no existe');",
+                "});"
+              ],
+              "_lastExecutionId": "84486497-d65b-460e-b2ee-c8f4eab02a1e"
+            }
+          }
+        ]
+      },
+      {
+        "id": "b67fd192-523b-4469-b2b2-0314bf77580a",
+        "name": "P5 - Hora fin anterior",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "v1",
+              "solicitudes-cita",
+              "importar"
+            ],
+            "host": [
+              "{{base_url}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"origen\": \"servicio_externo\",\n  \"datos\": {\n    \"patient\": {\n      \"document_number\": \"010-203-0405\"\n    },\n    \"appointment\": {\n      \"date\": \"{{fecha_iso}}\",\n      \"start_time\": \"15:30\",\n      \"end_time\": \"14:00\",\n      \"type\": \"consultation\"\n    },\n    \"reason\": \"Dolor dental\",\n    \"notes\": null\n  }\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "2796fb9b-50d8-4a83-aebd-d0695b273984",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status 422', function () {",
+                "    pm.response.to.have.status(422);",
+                "});",
+                "",
+                "const json = pm.response.json();",
+                "",
+                "pm.test('Error de rango en hora_fin', function () {",
+                "    pm.expect(json).to.have.property('errors');",
+                "    pm.expect(json.errors).to.have.property('hora_fin');",
+                "});"
+              ],
+              "_lastExecutionId": "27210bd2-a25c-467a-8044-639bec0211f3"
+            }
+          }
+        ]
+      },
+      {
+        "id": "db563374-c007-4bd0-8922-546ec669011f",
+        "name": "P6 - Tipo no permitido",
+        "request": {
+          "url": {
+            "path": [
+              "api",
+              "v1",
+              "solicitudes-cita",
+              "importar"
+            ],
+            "host": [
+              "{{base_url}}"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"origen\": \"formulario_web\",\n  \"datos\": {\n    \"cedula\": \"0102030405\",\n    \"fechaCita\": \"{{fecha_formulario}}\",\n    \"horaInicio\": \"3:30 PM\",\n    \"horaFin\": \"4:00 PM\",\n    \"tipoCita\": \"Consulta general\",\n    \"motivo\": \"Dolor dental\"\n  }\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": [],
+        "event": [
+          {
+            "listen": "test",
+            "script": {
+              "id": "4295b9e7-d384-44c3-a158-1450a7059f79",
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Status 422', function () {",
+                "    pm.response.to.have.status(422);",
+                "});",
+                "",
+                "const json = pm.response.json();",
+                "",
+                "pm.test('Error de catalogo en tipo', function () {",
+                "    pm.expect(json).to.have.property('errors');",
+                "    pm.expect(json.errors).to.have.property('tipo');",
+                "});"
+              ],
+              "_lastExecutionId": "02823d12-499d-4230-9bb1-f6defeb8b2ea"
+            }
+          }
+        ]
+      }
+    ],
+    "event": [
+      {
+        "listen": "prerequest",
+        "script": {
+          "id": "d652eace-5c8d-44cf-8014-dec98711bd8c",
+          "type": "text/javascript",
+          "exec": [
+            "const fecha = new Date();",
+            "fecha.setDate(fecha.getDate() + 3);",
+            "const iso = fecha.toISOString().slice(0, 10);",
+            "const partes = iso.split('-');",
+            "pm.collectionVariables.set('fecha_iso', iso);",
+            "pm.collectionVariables.set('fecha_formulario', partes[2] + '/' + partes[1] + '/' + partes[0]);"
+          ],
+          "_lastExecutionId": "2b9f19bd-2c76-4b5a-80ac-f7b62c8c8480"
+        }
+      }
+    ],
+    "variable": [
+      {
+        "type": "any",
+        "value": "http://127.0.0.1:8000",
+        "key": "base_url"
+      },
+      {
+        "type": "any",
+        "value": "2026-11-20",
+        "key": "fecha_iso"
+      },
+      {
+        "type": "any",
+        "value": "20/11/2026",
+        "key": "fecha_formulario"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "p1_solicitud_id"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "p1_paciente_id"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "p1_fecha"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "p1_hora_inicio"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "p1_hora_fin"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "p1_tipo"
+      },
+      {
+        "type": "any",
+        "value": "",
+        "key": "p1_estado"
+      }
+    ],
+    "info": {
+      "_postman_id": "9c4e7a11-6b2d-4f83-9a10-7d5e2c8b4f31",
+      "name": "IS803 T2.3 - Normalizacion de solicitudes",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+      "description": {
+        "content": "Pruebas de interoperabilidad del normalizador de solicitudes de cita: formulario web (origen A) y servicio externo simulado (origen B) contra el contrato comun.",
+        "type": "text/plain"
+      }
+    }
+  },
+  "environment": {
+    "_": {
+      "postman_variable_scope": "environment"
+    },
+    "id": "3f6b9d2a-8c1e-4a57-b3d9-6e2f4c7a1b58",
+    "name": "IS803 T2.3 - Local",
+    "values": [
+      {
+        "type": "any",
+        "value": "http://127.0.0.1:8000",
+        "key": "base_url"
+      }
+    ]
+  },
+  "globals": {
+    "id": "029a1037-3ff6-450c-b8c3-be1336521205",
+    "values": []
+  },
+  "run": {
+    "stats": {
+      "iterations": {
+        "total": 1,
+        "pending": 0,
+        "failed": 0
+      },
+      "items": {
+        "total": 6,
+        "pending": 0,
+        "failed": 0
+      },
+      "scripts": {
+        "total": 12,
+        "pending": 0,
+        "failed": 0
+      },
+      "prerequests": {
+        "total": 6,
+        "pending": 0,
+        "failed": 0
+      },
+      "requests": {
+        "total": 6,
+        "pending": 0,
+        "failed": 0
+      },
+      "tests": {
+        "total": 6,
+        "pending": 0,
+        "failed": 0
+      },
+      "assertions": {
+        "total": 13,
+        "pending": 0,
+        "failed": 0
+      },
+      "testScripts": {
+        "total": 6,
+        "pending": 0,
+        "failed": 0
+      },
+      "prerequestScripts": {
+        "total": 6,
+        "pending": 0,
+        "failed": 0
+      }
+    },
+    "timings": {
+      "responseAverage": 407.3333333333333,
+      "responseMin": 359,
+      "responseMax": 466,
+      "responseSd": 39.71425716568576,
+      "dnsAverage": 0,
+      "dnsMin": 0,
+      "dnsMax": 0,
+      "dnsSd": 0,
+      "firstByteAverage": 0,
+      "firstByteMin": 0,
+      "firstByteMax": 0,
+      "firstByteSd": 0,
+      "started": 1794966424548,
+      "completed": 1794966427513
+    },
+    "executions": [
+      {
+        "cursor": {
+          "position": 0,
+          "iteration": 0,
+          "length": 6,
+          "cycles": 1,
+          "empty": false,
+          "eof": false,
+          "bof": true,
+          "cr": false,
+          "ref": "abc02a44-65eb-4885-b1f4-a2e806504fcc",
+          "httpRequestId": "e995539a-30ef-4500-80ba-02a19a5740ca"
+        },
+        "item": {
+          "id": "c4f2f4db-ea88-47d9-9b81-5a27c6f06e6d",
+          "name": "P1 - Formulario web valido",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "solicitudes-cita",
+                "importar"
+              ],
+              "host": [
+                "{{base_url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origen\": \"formulario_web\",\n  \"datos\": {\n    \"cedula\": \"0102030405\",\n    \"fechaCita\": \"{{fecha_formulario}}\",\n    \"horaInicio\": \"3:30 PM\",\n    \"horaFin\": \"4:00 PM\",\n    \"tipoCita\": \"Consulta\",\n    \"motivo\": \"Dolor dental\",\n    \"observacion\": \"\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "f2de27b3-3e7f-419c-a415-97a1d6e37d1b",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Contrato comun normalizado', function () {",
+                  "    pm.expect(json.data).to.include.keys('solicitud_id', 'paciente_id', 'fecha', 'hora_inicio', 'hora_fin', 'tipo', 'canal', 'estado', 'creado_en');",
+                  "    pm.expect(json.data.fecha).to.eql(pm.collectionVariables.get('fecha_iso'));",
+                  "    pm.expect(json.data.hora_inicio).to.eql('15:30');",
+                  "    pm.expect(json.data.hora_fin).to.eql('16:00');",
+                  "    pm.expect(json.data.tipo).to.eql('consulta');",
+                  "    pm.expect(json.data.canal).to.eql('web');",
+                  "    pm.expect(json.data.estado).to.eql('pendiente');",
+                  "});",
+                  "",
+                  "pm.collectionVariables.set('p1_solicitud_id', json.data.solicitud_id);",
+                  "pm.collectionVariables.set('p1_paciente_id', json.data.paciente_id);",
+                  "pm.collectionVariables.set('p1_fecha', json.data.fecha);",
+                  "pm.collectionVariables.set('p1_hora_inicio', json.data.hora_inicio);",
+                  "pm.collectionVariables.set('p1_hora_fin', json.data.hora_fin);",
+                  "pm.collectionVariables.set('p1_tipo', json.data.tipo);",
+                  "pm.collectionVariables.set('p1_estado', json.data.estado);"
+                ],
+                "_lastExecutionId": "a6d3136b-bbe3-4ccf-b755-bdc85c4e40aa"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "8000",
+            "path": [
+              "api",
+              "v1",
+              "solicitudes-cita",
+              "importar"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "527a137e-4eb3-407d-ace2-b96d5963b22a",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:8000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "244",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"origen\": \"formulario_web\",\n  \"datos\": {\n    \"cedula\": \"0102030405\",\n    \"fechaCita\": \"21/11/2026\",\n    \"horaInicio\": \"3:30 PM\",\n    \"horaFin\": \"4:00 PM\",\n    \"tipoCita\": \"Consulta\",\n    \"motivo\": \"Dolor dental\",\n    \"observacion\": \"\"\n  }\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": {
+          "id": "508140b5-5906-4e6a-984a-ae68edf31f83",
+          "status": "Created",
+          "code": 201,
+          "header": [
+            {
+              "key": "Host",
+              "value": "127.0.0.1:8000"
+            },
+            {
+              "key": "Connection",
+              "value": "close"
+            },
+            {
+              "key": "X-Powered-By",
+              "value": "PHP/8.3.33"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, private"
+            },
+            {
+              "key": "Date",
+              "value": "Wed, 18 Nov 2026 01:47:05 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              100,
+              97,
+              116,
+              97,
+              34,
+              58,
+              123,
+              34,
+              115,
+              111,
+              108,
+              105,
+              99,
+              105,
+              116,
+              117,
+              100,
+              95,
+              105,
+              100,
+              34,
+              58,
+              34,
+              48,
+              49,
+              97,
+              49,
+              101,
+              99,
+              53,
+              54,
+              45,
+              48,
+              100,
+              57,
+              98,
+              45,
+              55,
+              51,
+              100,
+              51,
+              45,
+              97,
+              98,
+              54,
+              57,
+              45,
+              50,
+              57,
+              49,
+              100,
+              51,
+              52,
+              99,
+              52,
+              97,
+              52,
+              56,
+              100,
+              34,
+              44,
+              34,
+              112,
+              97,
+              99,
+              105,
+              101,
+              110,
+              116,
+              101,
+              95,
+              105,
+              100,
+              34,
+              58,
+              34,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              45,
+              49,
+              49,
+              49,
+              49,
+              45,
+              52,
+              49,
+              49,
+              49,
+              45,
+              56,
+              49,
+              49,
+              49,
+              45,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              34,
+              44,
+              34,
+              102,
+              101,
+              99,
+              104,
+              97,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              50,
+              49,
+              34,
+              44,
+              34,
+              104,
+              111,
+              114,
+              97,
+              95,
+              105,
+              110,
+              105,
+              99,
+              105,
+              111,
+              34,
+              58,
+              34,
+              49,
+              53,
+              58,
+              51,
+              48,
+              34,
+              44,
+              34,
+              104,
+              111,
+              114,
+              97,
+              95,
+              102,
+              105,
+              110,
+              34,
+              58,
+              34,
+              49,
+              54,
+              58,
+              48,
+              48,
+              34,
+              44,
+              34,
+              116,
+              105,
+              112,
+              111,
+              34,
+              58,
+              34,
+              99,
+              111,
+              110,
+              115,
+              117,
+              108,
+              116,
+              97,
+              34,
+              44,
+              34,
+              99,
+              97,
+              110,
+              97,
+              108,
+              34,
+              58,
+              34,
+              119,
+              101,
+              98,
+              34,
+              44,
+              34,
+              101,
+              115,
+              116,
+              97,
+              100,
+              111,
+              34,
+              58,
+              34,
+              112,
+              101,
+              110,
+              100,
+              105,
+              101,
+              110,
+              116,
+              101,
+              34,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              100,
+              111,
+              95,
+              101,
+              110,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              49,
+              55,
+              84,
+              50,
+              48,
+              58,
+              52,
+              55,
+              58,
+              48,
+              52,
+              45,
+              48,
+              53,
+              58,
+              48,
+              48,
+              34,
+              125,
+              44,
+              34,
+              109,
+              101,
+              110,
+              115,
+              97,
+              106,
+              101,
+              34,
+              58,
+              34,
+              83,
+              111,
+              108,
+              105,
+              99,
+              105,
+              116,
+              117,
+              100,
+              32,
+              100,
+              101,
+              32,
+              99,
+              105,
+              116,
+              97,
+              32,
+              105,
+              109,
+              112,
+              111,
+              114,
+              116,
+              97,
+              100,
+              97,
+              32,
+              121,
+              32,
+              110,
+              111,
+              114,
+              109,
+              97,
+              108,
+              105,
+              122,
+              97,
+              100,
+              97,
+              32,
+              99,
+              111,
+              114,
+              114,
+              101,
+              99,
+              116,
+              97,
+              109,
+              101,
+              110,
+              116,
+              101,
+              46,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 417,
+          "responseSize": 341
+        },
+        "id": "c4f2f4db-ea88-47d9-9b81-5a27c6f06e6d",
+        "assertions": [
+          {
+            "assertion": "Status 201",
+            "skipped": false
+          },
+          {
+            "assertion": "Contrato comun normalizado",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "39b9a10b-e9af-4e13-ab0e-56cf4ed16ad9",
+          "length": 6,
+          "cycles": 1,
+          "position": 1,
+          "iteration": 0,
+          "httpRequestId": "e6ea7bf4-b930-40fe-a66d-3c0754bd1067"
+        },
+        "item": {
+          "id": "4201fad7-6f39-4b49-8fd1-9e6be1af0010",
+          "name": "P2 - Servicio externo equivalente",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "solicitudes-cita",
+                "importar"
+              ],
+              "host": [
+                "{{base_url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origen\": \"servicio_externo\",\n  \"datos\": {\n    \"patient\": {\n      \"document_number\": \"010-203-0405\"\n    },\n    \"appointment\": {\n      \"date\": \"{{fecha_iso}}\",\n      \"start_time\": \"15:30\",\n      \"end_time\": \"16:00\",\n      \"type\": \"consultation\"\n    },\n    \"reason\": \"Dolor dental\",\n    \"notes\": null\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "6957b50c-1e51-4c29-ab6b-1fb5d4f3cd15",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Mismo contrato que P1', function () {",
+                  "    const campos = ['paciente_id', 'fecha', 'hora_inicio', 'hora_fin', 'tipo', 'estado'];",
+                  "    campos.forEach(function (campo) {",
+                  "        pm.expect(json.data[campo]).to.eql(pm.collectionVariables.get('p1_' + campo));",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test('Canal del servicio externo', function () {",
+                  "    pm.expect(json.data.canal).to.eql('movil');",
+                  "});"
+                ],
+                "_lastExecutionId": "3d564b49-a548-43e8-a355-eca8e0ba7a51"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "8000",
+            "path": [
+              "api",
+              "v1",
+              "solicitudes-cita",
+              "importar"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "849d9128-02d6-4c94-bca4-71b14e65b0bd",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:8000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "305",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"origen\": \"servicio_externo\",\n  \"datos\": {\n    \"patient\": {\n      \"document_number\": \"010-203-0405\"\n    },\n    \"appointment\": {\n      \"date\": \"2026-11-21\",\n      \"start_time\": \"15:30\",\n      \"end_time\": \"16:00\",\n      \"type\": \"consultation\"\n    },\n    \"reason\": \"Dolor dental\",\n    \"notes\": null\n  }\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": {
+          "id": "f27749b6-2645-40e9-ae6c-ddd5015da919",
+          "status": "Created",
+          "code": 201,
+          "header": [
+            {
+              "key": "Host",
+              "value": "127.0.0.1:8000"
+            },
+            {
+              "key": "Connection",
+              "value": "close"
+            },
+            {
+              "key": "X-Powered-By",
+              "value": "PHP/8.3.33"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, private"
+            },
+            {
+              "key": "Date",
+              "value": "Wed, 18 Nov 2026 01:47:05 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              100,
+              97,
+              116,
+              97,
+              34,
+              58,
+              123,
+              34,
+              115,
+              111,
+              108,
+              105,
+              99,
+              105,
+              116,
+              117,
+              100,
+              95,
+              105,
+              100,
+              34,
+              58,
+              34,
+              48,
+              49,
+              97,
+              49,
+              101,
+              99,
+              53,
+              54,
+              45,
+              48,
+              102,
+              55,
+              51,
+              45,
+              55,
+              50,
+              57,
+              54,
+              45,
+              57,
+              57,
+              100,
+              57,
+              45,
+              51,
+              51,
+              97,
+              50,
+              98,
+              98,
+              57,
+              98,
+              51,
+              50,
+              101,
+              56,
+              34,
+              44,
+              34,
+              112,
+              97,
+              99,
+              105,
+              101,
+              110,
+              116,
+              101,
+              95,
+              105,
+              100,
+              34,
+              58,
+              34,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              45,
+              49,
+              49,
+              49,
+              49,
+              45,
+              52,
+              49,
+              49,
+              49,
+              45,
+              56,
+              49,
+              49,
+              49,
+              45,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              49,
+              34,
+              44,
+              34,
+              102,
+              101,
+              99,
+              104,
+              97,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              50,
+              49,
+              34,
+              44,
+              34,
+              104,
+              111,
+              114,
+              97,
+              95,
+              105,
+              110,
+              105,
+              99,
+              105,
+              111,
+              34,
+              58,
+              34,
+              49,
+              53,
+              58,
+              51,
+              48,
+              34,
+              44,
+              34,
+              104,
+              111,
+              114,
+              97,
+              95,
+              102,
+              105,
+              110,
+              34,
+              58,
+              34,
+              49,
+              54,
+              58,
+              48,
+              48,
+              34,
+              44,
+              34,
+              116,
+              105,
+              112,
+              111,
+              34,
+              58,
+              34,
+              99,
+              111,
+              110,
+              115,
+              117,
+              108,
+              116,
+              97,
+              34,
+              44,
+              34,
+              99,
+              97,
+              110,
+              97,
+              108,
+              34,
+              58,
+              34,
+              109,
+              111,
+              118,
+              105,
+              108,
+              34,
+              44,
+              34,
+              101,
+              115,
+              116,
+              97,
+              100,
+              111,
+              34,
+              58,
+              34,
+              112,
+              101,
+              110,
+              100,
+              105,
+              101,
+              110,
+              116,
+              101,
+              34,
+              44,
+              34,
+              99,
+              114,
+              101,
+              97,
+              100,
+              111,
+              95,
+              101,
+              110,
+              34,
+              58,
+              34,
+              50,
+              48,
+              50,
+              54,
+              45,
+              49,
+              49,
+              45,
+              49,
+              55,
+              84,
+              50,
+              48,
+              58,
+              52,
+              55,
+              58,
+              48,
+              53,
+              45,
+              48,
+              53,
+              58,
+              48,
+              48,
+              34,
+              125,
+              44,
+              34,
+              109,
+              101,
+              110,
+              115,
+              97,
+              106,
+              101,
+              34,
+              58,
+              34,
+              83,
+              111,
+              108,
+              105,
+              99,
+              105,
+              116,
+              117,
+              100,
+              32,
+              100,
+              101,
+              32,
+              99,
+              105,
+              116,
+              97,
+              32,
+              105,
+              109,
+              112,
+              111,
+              114,
+              116,
+              97,
+              100,
+              97,
+              32,
+              121,
+              32,
+              110,
+              111,
+              114,
+              109,
+              97,
+              108,
+              105,
+              122,
+              97,
+              100,
+              97,
+              32,
+              99,
+              111,
+              114,
+              114,
+              101,
+              99,
+              116,
+              97,
+              109,
+              101,
+              110,
+              116,
+              101,
+              46,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 384,
+          "responseSize": 343
+        },
+        "id": "4201fad7-6f39-4b49-8fd1-9e6be1af0010",
+        "assertions": [
+          {
+            "assertion": "Status 201",
+            "skipped": false
+          },
+          {
+            "assertion": "Mismo contrato que P1",
+            "skipped": false
+          },
+          {
+            "assertion": "Canal del servicio externo",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "7e46e1d9-ccea-40d4-bcdf-5a07f8634e13",
+          "length": 6,
+          "cycles": 1,
+          "position": 2,
+          "iteration": 0,
+          "httpRequestId": "522c6658-dbb8-472b-8109-9f33f3d3b89d"
+        },
+        "item": {
+          "id": "6051fc9c-8590-47f9-81be-b8b69af3a5a0",
+          "name": "P3 - Formulario sin motivo",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "solicitudes-cita",
+                "importar"
+              ],
+              "host": [
+                "{{base_url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origen\": \"formulario_web\",\n  \"datos\": {\n    \"cedula\": \"0102030405\",\n    \"fechaCita\": \"{{fecha_formulario}}\",\n    \"horaInicio\": \"3:30 PM\",\n    \"horaFin\": \"4:00 PM\",\n    \"tipoCita\": \"Consulta\",\n    \"observacion\": \"\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "6d3417dc-df49-45d4-9a05-9047e3050951",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 422', function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Error explicito en motivo', function () {",
+                  "    pm.expect(json).to.have.property('errors');",
+                  "    pm.expect(json.errors).to.have.property('motivo');",
+                  "    pm.expect(json).to.not.have.property('data');",
+                  "});"
+                ],
+                "_lastExecutionId": "8f40c12e-3740-45bc-857f-72dc26caacc2"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "8000",
+            "path": [
+              "api",
+              "v1",
+              "solicitudes-cita",
+              "importar"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "abf485d2-41f4-4115-be86-5efd083fa663",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:8000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "214",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"origen\": \"formulario_web\",\n  \"datos\": {\n    \"cedula\": \"0102030405\",\n    \"fechaCita\": \"21/11/2026\",\n    \"horaInicio\": \"3:30 PM\",\n    \"horaFin\": \"4:00 PM\",\n    \"tipoCita\": \"Consulta\",\n    \"observacion\": \"\"\n  }\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": {
+          "id": "d7bb3d4a-7bbd-41b0-8175-72f1bcb531aa",
+          "status": "Unprocessable Content",
+          "code": 422,
+          "header": [
+            {
+              "key": "Host",
+              "value": "127.0.0.1:8000"
+            },
+            {
+              "key": "Connection",
+              "value": "close"
+            },
+            {
+              "key": "X-Powered-By",
+              "value": "PHP/8.3.33"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, private"
+            },
+            {
+              "key": "Date",
+              "value": "Wed, 18 Nov 2026 01:47:05 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              76,
+              97,
+              32,
+              101,
+              110,
+              116,
+              114,
+              97,
+              100,
+              97,
+              32,
+              100,
+              101,
+              108,
+              32,
+              102,
+              111,
+              114,
+              109,
+              117,
+              108,
+              97,
+              114,
+              105,
+              111,
+              32,
+              119,
+              101,
+              98,
+              32,
+              99,
+              111,
+              110,
+              116,
+              105,
+              101,
+              110,
+              101,
+              32,
+              100,
+              97,
+              116,
+              111,
+              115,
+              32,
+              105,
+              110,
+              118,
+              92,
+              117,
+              48,
+              48,
+              101,
+              49,
+              108,
+              105,
+              100,
+              111,
+              115,
+              46,
+              34,
+              44,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              115,
+              34,
+              58,
+              123,
+              34,
+              109,
+              111,
+              116,
+              105,
+              118,
+              111,
+              34,
+              58,
+              91,
+              34,
+              69,
+              108,
+              32,
+              109,
+              111,
+              116,
+              105,
+              118,
+              111,
+              32,
+              101,
+              115,
+              32,
+              111,
+              98,
+              108,
+              105,
+              103,
+              97,
+              116,
+              111,
+              114,
+              105,
+              111,
+              46,
+              34,
+              93,
+              125,
+              44,
+              34,
+              111,
+              114,
+              105,
+              103,
+              101,
+              110,
+              34,
+              58,
+              34,
+              102,
+              111,
+              114,
+              109,
+              117,
+              108,
+              97,
+              114,
+              105,
+              111,
+              95,
+              119,
+              101,
+              98,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 359,
+          "responseSize": 150
+        },
+        "id": "6051fc9c-8590-47f9-81be-b8b69af3a5a0",
+        "assertions": [
+          {
+            "assertion": "Status 422",
+            "skipped": false
+          },
+          {
+            "assertion": "Error explicito en motivo",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "684c061c-ddd2-4e9d-868b-89ae44d9889d",
+          "length": 6,
+          "cycles": 1,
+          "position": 3,
+          "iteration": 0,
+          "httpRequestId": "c6734522-0f3f-4b23-93a6-af063268e308"
+        },
+        "item": {
+          "id": "a9d5c0a6-fef4-48d6-b47d-97d34c1a77c4",
+          "name": "P4 - Fecha inexistente",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "solicitudes-cita",
+                "importar"
+              ],
+              "host": [
+                "{{base_url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origen\": \"formulario_web\",\n  \"datos\": {\n    \"cedula\": \"0102030405\",\n    \"fechaCita\": \"31/02/2026\",\n    \"horaInicio\": \"3:30 PM\",\n    \"horaFin\": \"4:00 PM\",\n    \"tipoCita\": \"Consulta\",\n    \"motivo\": \"Dolor dental\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "60b8505d-6ec8-4629-9142-167800c40efb",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 422', function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Error de calendario en fecha', function () {",
+                  "    pm.expect(json).to.have.property('errors');",
+                  "    pm.expect(json.errors).to.have.property('fecha');",
+                  "    pm.expect(json.errors.fecha[0]).to.include('no existe');",
+                  "});"
+                ],
+                "_lastExecutionId": "84486497-d65b-460e-b2ee-c8f4eab02a1e"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "8000",
+            "path": [
+              "api",
+              "v1",
+              "solicitudes-cita",
+              "importar"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "502f28d4-3834-41ae-affa-c7ef503ee9df",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:8000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "221",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"origen\": \"formulario_web\",\n  \"datos\": {\n    \"cedula\": \"0102030405\",\n    \"fechaCita\": \"31/02/2026\",\n    \"horaInicio\": \"3:30 PM\",\n    \"horaFin\": \"4:00 PM\",\n    \"tipoCita\": \"Consulta\",\n    \"motivo\": \"Dolor dental\"\n  }\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": {
+          "id": "17917a8a-6580-48e6-9299-7c3b4ca2398e",
+          "status": "Unprocessable Content",
+          "code": 422,
+          "header": [
+            {
+              "key": "Host",
+              "value": "127.0.0.1:8000"
+            },
+            {
+              "key": "Connection",
+              "value": "close"
+            },
+            {
+              "key": "X-Powered-By",
+              "value": "PHP/8.3.33"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, private"
+            },
+            {
+              "key": "Date",
+              "value": "Wed, 18 Nov 2026 01:47:06 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              76,
+              97,
+              32,
+              101,
+              110,
+              116,
+              114,
+              97,
+              100,
+              97,
+              32,
+              100,
+              101,
+              108,
+              32,
+              102,
+              111,
+              114,
+              109,
+              117,
+              108,
+              97,
+              114,
+              105,
+              111,
+              32,
+              119,
+              101,
+              98,
+              32,
+              99,
+              111,
+              110,
+              116,
+              105,
+              101,
+              110,
+              101,
+              32,
+              100,
+              97,
+              116,
+              111,
+              115,
+              32,
+              105,
+              110,
+              118,
+              92,
+              117,
+              48,
+              48,
+              101,
+              49,
+              108,
+              105,
+              100,
+              111,
+              115,
+              46,
+              34,
+              44,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              115,
+              34,
+              58,
+              123,
+              34,
+              102,
+              101,
+              99,
+              104,
+              97,
+              34,
+              58,
+              91,
+              34,
+              76,
+              97,
+              32,
+              102,
+              101,
+              99,
+              104,
+              97,
+              32,
+              105,
+              110,
+              100,
+              105,
+              99,
+              97,
+              100,
+              97,
+              32,
+              110,
+              111,
+              32,
+              101,
+              120,
+              105,
+              115,
+              116,
+              101,
+              32,
+              101,
+              110,
+              32,
+              101,
+              108,
+              32,
+              99,
+              97,
+              108,
+              101,
+              110,
+              100,
+              97,
+              114,
+              105,
+              111,
+              46,
+              34,
+              93,
+              125,
+              44,
+              34,
+              111,
+              114,
+              105,
+              103,
+              101,
+              110,
+              34,
+              58,
+              34,
+              102,
+              111,
+              114,
+              109,
+              117,
+              108,
+              97,
+              114,
+              105,
+              111,
+              95,
+              119,
+              101,
+              98,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 370,
+          "responseSize": 169
+        },
+        "id": "a9d5c0a6-fef4-48d6-b47d-97d34c1a77c4",
+        "assertions": [
+          {
+            "assertion": "Status 422",
+            "skipped": false
+          },
+          {
+            "assertion": "Error de calendario en fecha",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "b2f90734-3d1d-4847-a011-37e5120bfb4e",
+          "length": 6,
+          "cycles": 1,
+          "position": 4,
+          "iteration": 0,
+          "httpRequestId": "53d22da2-db35-4327-9993-0e84a0d61714"
+        },
+        "item": {
+          "id": "b67fd192-523b-4469-b2b2-0314bf77580a",
+          "name": "P5 - Hora fin anterior",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "solicitudes-cita",
+                "importar"
+              ],
+              "host": [
+                "{{base_url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origen\": \"servicio_externo\",\n  \"datos\": {\n    \"patient\": {\n      \"document_number\": \"010-203-0405\"\n    },\n    \"appointment\": {\n      \"date\": \"{{fecha_iso}}\",\n      \"start_time\": \"15:30\",\n      \"end_time\": \"14:00\",\n      \"type\": \"consultation\"\n    },\n    \"reason\": \"Dolor dental\",\n    \"notes\": null\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "2796fb9b-50d8-4a83-aebd-d0695b273984",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 422', function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Error de rango en hora_fin', function () {",
+                  "    pm.expect(json).to.have.property('errors');",
+                  "    pm.expect(json.errors).to.have.property('hora_fin');",
+                  "});"
+                ],
+                "_lastExecutionId": "27210bd2-a25c-467a-8044-639bec0211f3"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "8000",
+            "path": [
+              "api",
+              "v1",
+              "solicitudes-cita",
+              "importar"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "3560455f-a564-4898-bfec-a94b3dffe0bf",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:8000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "305",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"origen\": \"servicio_externo\",\n  \"datos\": {\n    \"patient\": {\n      \"document_number\": \"010-203-0405\"\n    },\n    \"appointment\": {\n      \"date\": \"2026-11-21\",\n      \"start_time\": \"15:30\",\n      \"end_time\": \"14:00\",\n      \"type\": \"consultation\"\n    },\n    \"reason\": \"Dolor dental\",\n    \"notes\": null\n  }\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": {
+          "id": "70fdef18-8908-4a9f-918d-231d6c88743e",
+          "status": "Unprocessable Content",
+          "code": 422,
+          "header": [
+            {
+              "key": "Host",
+              "value": "127.0.0.1:8000"
+            },
+            {
+              "key": "Connection",
+              "value": "close"
+            },
+            {
+              "key": "X-Powered-By",
+              "value": "PHP/8.3.33"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, private"
+            },
+            {
+              "key": "Date",
+              "value": "Wed, 18 Nov 2026 01:47:06 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              76,
+              97,
+              32,
+              101,
+              110,
+              116,
+              114,
+              97,
+              100,
+              97,
+              32,
+              110,
+              111,
+              114,
+              109,
+              97,
+              108,
+              105,
+              122,
+              97,
+              100,
+              97,
+              32,
+              110,
+              111,
+              32,
+              99,
+              117,
+              109,
+              112,
+              108,
+              101,
+              32,
+              101,
+              108,
+              32,
+              99,
+              111,
+              110,
+              116,
+              114,
+              97,
+              116,
+              111,
+              32,
+              99,
+              111,
+              109,
+              92,
+              117,
+              48,
+              48,
+              102,
+              97,
+              110,
+              46,
+              34,
+              44,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              115,
+              34,
+              58,
+              123,
+              34,
+              104,
+              111,
+              114,
+              97,
+              95,
+              102,
+              105,
+              110,
+              34,
+              58,
+              91,
+              34,
+              76,
+              97,
+              32,
+              104,
+              111,
+              114,
+              97,
+              32,
+              100,
+              101,
+              32,
+              102,
+              105,
+              110,
+              32,
+              100,
+              101,
+              98,
+              101,
+              32,
+              115,
+              101,
+              114,
+              32,
+              112,
+              111,
+              115,
+              116,
+              101,
+              114,
+              105,
+              111,
+              114,
+              32,
+              97,
+              32,
+              108,
+              97,
+              32,
+              104,
+              111,
+              114,
+              97,
+              32,
+              100,
+              101,
+              32,
+              105,
+              110,
+              105,
+              99,
+              105,
+              111,
+              46,
+              34,
+              93,
+              125,
+              44,
+              34,
+              111,
+              114,
+              105,
+              103,
+              101,
+              110,
+              34,
+              58,
+              34,
+              115,
+              101,
+              114,
+              118,
+              105,
+              99,
+              105,
+              111,
+              95,
+              101,
+              120,
+              116,
+              101,
+              114,
+              110,
+              111,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 466,
+          "responseSize": 179
+        },
+        "id": "b67fd192-523b-4469-b2b2-0314bf77580a",
+        "assertions": [
+          {
+            "assertion": "Status 422",
+            "skipped": false
+          },
+          {
+            "assertion": "Error de rango en hora_fin",
+            "skipped": false
+          }
+        ]
+      },
+      {
+        "cursor": {
+          "ref": "615fb07a-b3cd-432a-9be7-8631ff236ea9",
+          "length": 6,
+          "cycles": 1,
+          "position": 5,
+          "iteration": 0,
+          "httpRequestId": "9d6c7d6f-349e-4eee-baca-c2265968bbd1"
+        },
+        "item": {
+          "id": "db563374-c007-4bd0-8922-546ec669011f",
+          "name": "P6 - Tipo no permitido",
+          "request": {
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "solicitudes-cita",
+                "importar"
+              ],
+              "host": [
+                "{{base_url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origen\": \"formulario_web\",\n  \"datos\": {\n    \"cedula\": \"0102030405\",\n    \"fechaCita\": \"{{fecha_formulario}}\",\n    \"horaInicio\": \"3:30 PM\",\n    \"horaFin\": \"4:00 PM\",\n    \"tipoCita\": \"Consulta general\",\n    \"motivo\": \"Dolor dental\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "4295b9e7-d384-44c3-a158-1450a7059f79",
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 422', function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test('Error de catalogo en tipo', function () {",
+                  "    pm.expect(json).to.have.property('errors');",
+                  "    pm.expect(json.errors).to.have.property('tipo');",
+                  "});"
+                ],
+                "_lastExecutionId": "02823d12-499d-4230-9bb1-f6defeb8b2ea"
+              }
+            }
+          ]
+        },
+        "request": {
+          "url": {
+            "protocol": "http",
+            "port": "8000",
+            "path": [
+              "api",
+              "v1",
+              "solicitudes-cita",
+              "importar"
+            ],
+            "host": [
+              "127",
+              "0",
+              "0",
+              "1"
+            ],
+            "query": [],
+            "variable": []
+          },
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Accept",
+              "value": "application/json"
+            },
+            {
+              "key": "User-Agent",
+              "value": "PostmanRuntime/7.39.1",
+              "system": true
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache",
+              "system": true
+            },
+            {
+              "key": "Postman-Token",
+              "value": "0664fc0d-d5a3-4e79-8891-6037a1e0153c",
+              "system": true
+            },
+            {
+              "key": "Host",
+              "value": "127.0.0.1:8000",
+              "system": true
+            },
+            {
+              "key": "Accept-Encoding",
+              "value": "gzip, deflate, br",
+              "system": true
+            },
+            {
+              "key": "Connection",
+              "value": "keep-alive",
+              "system": true
+            },
+            {
+              "key": "Content-Length",
+              "value": "229",
+              "system": true
+            }
+          ],
+          "method": "POST",
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"origen\": \"formulario_web\",\n  \"datos\": {\n    \"cedula\": \"0102030405\",\n    \"fechaCita\": \"21/11/2026\",\n    \"horaInicio\": \"3:30 PM\",\n    \"horaFin\": \"4:00 PM\",\n    \"tipoCita\": \"Consulta general\",\n    \"motivo\": \"Dolor dental\"\n  }\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": {
+          "id": "c6c53b20-36a0-4ad3-97d4-ede5787e5ec6",
+          "status": "Unprocessable Content",
+          "code": 422,
+          "header": [
+            {
+              "key": "Host",
+              "value": "127.0.0.1:8000"
+            },
+            {
+              "key": "Connection",
+              "value": "close"
+            },
+            {
+              "key": "X-Powered-By",
+              "value": "PHP/8.3.33"
+            },
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, private"
+            },
+            {
+              "key": "Date",
+              "value": "Wed, 18 Nov 2026 01:47:07 GMT"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            }
+          ],
+          "stream": {
+            "type": "Buffer",
+            "data": [
+              123,
+              34,
+              109,
+              101,
+              115,
+              115,
+              97,
+              103,
+              101,
+              34,
+              58,
+              34,
+              76,
+              97,
+              32,
+              101,
+              110,
+              116,
+              114,
+              97,
+              100,
+              97,
+              32,
+              100,
+              101,
+              108,
+              32,
+              102,
+              111,
+              114,
+              109,
+              117,
+              108,
+              97,
+              114,
+              105,
+              111,
+              32,
+              119,
+              101,
+              98,
+              32,
+              99,
+              111,
+              110,
+              116,
+              105,
+              101,
+              110,
+              101,
+              32,
+              100,
+              97,
+              116,
+              111,
+              115,
+              32,
+              105,
+              110,
+              118,
+              92,
+              117,
+              48,
+              48,
+              101,
+              49,
+              108,
+              105,
+              100,
+              111,
+              115,
+              46,
+              34,
+              44,
+              34,
+              101,
+              114,
+              114,
+              111,
+              114,
+              115,
+              34,
+              58,
+              123,
+              34,
+              116,
+              105,
+              112,
+              111,
+              34,
+              58,
+              91,
+              34,
+              69,
+              108,
+              32,
+              116,
+              105,
+              112,
+              111,
+              32,
+              100,
+              101,
+              32,
+              99,
+              105,
+              116,
+              97,
+              32,
+              100,
+              101,
+              98,
+              101,
+              32,
+              115,
+              101,
+              114,
+              32,
+              67,
+              111,
+              110,
+              115,
+              117,
+              108,
+              116,
+              97,
+              44,
+              32,
+              84,
+              114,
+              97,
+              116,
+              97,
+              109,
+              105,
+              101,
+              110,
+              116,
+              111,
+              32,
+              111,
+              32,
+              67,
+              111,
+              110,
+              116,
+              114,
+              111,
+              108,
+              46,
+              34,
+              93,
+              125,
+              44,
+              34,
+              111,
+              114,
+              105,
+              103,
+              101,
+              110,
+              34,
+              58,
+              34,
+              102,
+              111,
+              114,
+              109,
+              117,
+              108,
+              97,
+              114,
+              105,
+              111,
+              95,
+              119,
+              101,
+              98,
+              34,
+              125
+            ]
+          },
+          "cookie": [],
+          "responseTime": 448,
+          "responseSize": 180
+        },
+        "id": "db563374-c007-4bd0-8922-546ec669011f",
+        "assertions": [
+          {
+            "assertion": "Status 422",
+            "skipped": false
+          },
+          {
+            "assertion": "Error de catalogo en tipo",
+            "skipped": false
+          }
+        ]
+      }
+    ],
+    "transfers": {
+      "responseTotal": 1362
+    },
+    "failures": [],
+    "error": null
+  }
+}

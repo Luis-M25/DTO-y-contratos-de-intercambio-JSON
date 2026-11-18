@@ -1,0 +1,431 @@
+{
+  "info": {
+    "_postman_id": "9c4e7a11-6b2d-4f83-9a10-7d5e2c8b4f31",
+    "name": "IS803 T2.3 - Normalizacion de solicitudes",
+    "description": "Pruebas de interoperabilidad del normalizador de solicitudes de cita: formulario web (origen A) y servicio externo simulado (origen B) contra el contrato comun.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const fecha = new Date();",
+          "fecha.setDate(fecha.getDate() + 3);",
+          "const iso = fecha.toISOString().slice(0, 10);",
+          "const partes = iso.split('-');",
+          "pm.collectionVariables.set('fecha_iso', iso);",
+          "pm.collectionVariables.set('fecha_formulario', partes[2] + '/' + partes[1] + '/' + partes[0]);"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "P1 - Formulario web valido",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "",
+              "pm.test('Contrato comun normalizado', function () {",
+              "    pm.expect(json.data).to.include.keys('solicitud_id', 'paciente_id', 'fecha', 'hora_inicio', 'hora_fin', 'tipo', 'canal', 'estado', 'creado_en');",
+              "    pm.expect(json.data.fecha).to.eql(pm.collectionVariables.get('fecha_iso'));",
+              "    pm.expect(json.data.hora_inicio).to.eql('15:30');",
+              "    pm.expect(json.data.hora_fin).to.eql('16:00');",
+              "    pm.expect(json.data.tipo).to.eql('consulta');",
+              "    pm.expect(json.data.canal).to.eql('web');",
+              "    pm.expect(json.data.estado).to.eql('pendiente');",
+              "});",
+              "",
+              "pm.collectionVariables.set('p1_solicitud_id', json.data.solicitud_id);",
+              "pm.collectionVariables.set('p1_paciente_id', json.data.paciente_id);",
+              "pm.collectionVariables.set('p1_fecha', json.data.fecha);",
+              "pm.collectionVariables.set('p1_hora_inicio', json.data.hora_inicio);",
+              "pm.collectionVariables.set('p1_hora_fin', json.data.hora_fin);",
+              "pm.collectionVariables.set('p1_tipo', json.data.tipo);",
+              "pm.collectionVariables.set('p1_estado', json.data.estado);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"origen\": \"formulario_web\",\n  \"datos\": {\n    \"cedula\": \"0102030405\",\n    \"fechaCita\": \"{{fecha_formulario}}\",\n    \"horaInicio\": \"3:30 PM\",\n    \"horaFin\": \"4:00 PM\",\n    \"tipoCita\": \"Consulta\",\n    \"motivo\": \"Dolor dental\",\n    \"observacion\": \"\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita/importar",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solicitudes-cita",
+            "importar"
+          ]
+        }
+      }
+    },
+    {
+      "name": "P2 - Servicio externo equivalente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "",
+              "pm.test('Mismo contrato que P1', function () {",
+              "    const campos = ['paciente_id', 'fecha', 'hora_inicio', 'hora_fin', 'tipo', 'estado'];",
+              "    campos.forEach(function (campo) {",
+              "        pm.expect(json.data[campo]).to.eql(pm.collectionVariables.get('p1_' + campo));",
+              "    });",
+              "});",
+              "",
+              "pm.test('Canal del servicio externo', function () {",
+              "    pm.expect(json.data.canal).to.eql('movil');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"origen\": \"servicio_externo\",\n  \"datos\": {\n    \"patient\": {\n      \"document_number\": \"010-203-0405\"\n    },\n    \"appointment\": {\n      \"date\": \"{{fecha_iso}}\",\n      \"start_time\": \"15:30\",\n      \"end_time\": \"16:00\",\n      \"type\": \"consultation\"\n    },\n    \"reason\": \"Dolor dental\",\n    \"notes\": null\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita/importar",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solicitudes-cita",
+            "importar"
+          ]
+        }
+      }
+    },
+    {
+      "name": "P3 - Formulario sin motivo",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 422', function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "",
+              "pm.test('Error explicito en motivo', function () {",
+              "    pm.expect(json).to.have.property('errors');",
+              "    pm.expect(json.errors).to.have.property('motivo');",
+              "    pm.expect(json).to.not.have.property('data');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"origen\": \"formulario_web\",\n  \"datos\": {\n    \"cedula\": \"0102030405\",\n    \"fechaCita\": \"{{fecha_formulario}}\",\n    \"horaInicio\": \"3:30 PM\",\n    \"horaFin\": \"4:00 PM\",\n    \"tipoCita\": \"Consulta\",\n    \"observacion\": \"\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita/importar",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solicitudes-cita",
+            "importar"
+          ]
+        }
+      }
+    },
+    {
+      "name": "P4 - Fecha inexistente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 422', function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "",
+              "pm.test('Error de calendario en fecha', function () {",
+              "    pm.expect(json).to.have.property('errors');",
+              "    pm.expect(json.errors).to.have.property('fecha');",
+              "    pm.expect(json.errors.fecha[0]).to.include('no existe');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"origen\": \"formulario_web\",\n  \"datos\": {\n    \"cedula\": \"0102030405\",\n    \"fechaCita\": \"31/02/2026\",\n    \"horaInicio\": \"3:30 PM\",\n    \"horaFin\": \"4:00 PM\",\n    \"tipoCita\": \"Consulta\",\n    \"motivo\": \"Dolor dental\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita/importar",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solicitudes-cita",
+            "importar"
+          ]
+        }
+      }
+    },
+    {
+      "name": "P5 - Hora fin anterior",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 422', function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "",
+              "pm.test('Error de rango en hora_fin', function () {",
+              "    pm.expect(json).to.have.property('errors');",
+              "    pm.expect(json.errors).to.have.property('hora_fin');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"origen\": \"servicio_externo\",\n  \"datos\": {\n    \"patient\": {\n      \"document_number\": \"010-203-0405\"\n    },\n    \"appointment\": {\n      \"date\": \"{{fecha_iso}}\",\n      \"start_time\": \"15:30\",\n      \"end_time\": \"14:00\",\n      \"type\": \"consultation\"\n    },\n    \"reason\": \"Dolor dental\",\n    \"notes\": null\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita/importar",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solicitudes-cita",
+            "importar"
+          ]
+        }
+      }
+    },
+    {
+      "name": "P6 - Tipo no permitido",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 422', function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "",
+              "pm.test('Error de catalogo en tipo', function () {",
+              "    pm.expect(json).to.have.property('errors');",
+              "    pm.expect(json.errors).to.have.property('tipo');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"origen\": \"formulario_web\",\n  \"datos\": {\n    \"cedula\": \"0102030405\",\n    \"fechaCita\": \"{{fecha_formulario}}\",\n    \"horaInicio\": \"3:30 PM\",\n    \"horaFin\": \"4:00 PM\",\n    \"tipoCita\": \"Consulta general\",\n    \"motivo\": \"Dolor dental\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita/importar",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solicitudes-cita",
+            "importar"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "fecha_iso",
+      "value": "2026-11-20"
+    },
+    {
+      "key": "fecha_formulario",
+      "value": "20/11/2026"
+    },
+    {
+      "key": "p1_solicitud_id",
+      "value": ""
+    },
+    {
+      "key": "p1_paciente_id",
+      "value": ""
+    },
+    {
+      "key": "p1_fecha",
+      "value": ""
+    },
+    {
+      "key": "p1_hora_inicio",
+      "value": ""
+    },
+    {
+      "key": "p1_hora_fin",
+      "value": ""
+    },
+    {
+      "key": "p1_tipo",
+      "value": ""
+    },
+    {
+      "key": "p1_estado",
+      "value": ""
+    }
+  ]
+}
