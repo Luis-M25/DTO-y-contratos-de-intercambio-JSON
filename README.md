@@ -137,7 +137,6 @@ type nul > database\database.sqlite
 php artisan migrate:fresh --seed
 ```
 
-> El archivo `.env` no se versiona. Usa datos ficticios y no publiques tokens ni contraseñas.
 
 ## Ejecución
 
