@@ -263,16 +263,6 @@ database/
 ├─ factories/
 ├─ migrations/
 └─ seeders/
-docs/
-├─ T2.3-normalizacion.md
-├─ 01-actividad-1-proceso.md
-├─ 02-actividad-2-contrato.md
-├─ 03-actividad-3-implementacion.md
-├─ 04-actividad-4-pruebas.md
-├─ 05-reflexion.md
-├─ 06-diagrama.md
-└─ evidencias/
-   └─ t2.3/
 postman/
 routes/api.php
 tests/Feature/
@@ -296,32 +286,6 @@ tests/Feature/
 - [Reflexión individual](docs/05-reflexion.md)
 - [Diagrama](docs/06-diagrama.md)
 
-## Checklist de entrega
-
-### Tema 2.3
-
-- [x] Actividad 1: dos orígenes, cinco diferencias y contrato común.
-- [x] Actividad 2: tabla de mapeo A / B / contrato común.
-- [x] Actividad 3: `NormalizadorSolicitudCita` con un método por origen.
-- [x] Actividad 3: validación estricta y errores explícitos.
-- [x] Actividad 4: P1 y P2 generan el mismo contrato clínico.
-- [x] Pruebas P1–P8 (13 pruebas, 79 aserciones).
-- [x] Colección Postman y ejecución Newman (6 solicitudes, 13 aserciones, 0 fallos).
-- [x] Capturas P1, P2, P3 y diagrama en `docs/evidencias/t2.3/`.
-- [x] Documentación `docs/T2.3-normalizacion.md`.
-
-### Tema 2.2
-
-- [x] Actividad 1: proceso, actores y endpoint documentados.
-- [x] Actividad 2: contrato de solicitud, respuesta y error.
-- [x] Actividad 3: endpoint Laravel con validación y serialización.
-- [x] Actividad 4: pruebas P1 a P5 y colección Postman.
-- [x] Diagrama de intercambio.
-- [x] Reflexión individual.
-- [x] README con instrucciones.
-- [ ] Capturas `p1.png`, `p2.png` y `p3.png` en `docs/evidencias/`.
-- [ ] Subir las capturas al repositorio.
-- [ ] Verificar que el repositorio sea accesible para el docente.
 
 ## Notas de entorno
 
