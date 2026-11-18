@@ -33,7 +33,6 @@ type nul > database\database.sqlite
 php artisan migrate:fresh --seed
 ```
 
-> El archivo `.env` no se versiona. Usa datos ficticios y no publiques tokens ni contraseñas.
 
 ## Ejecución
 
@@ -122,7 +121,6 @@ npx newman run postman/IS803-T2.2-SolicitudCita.postman_collection.json -e postm
 3. Selecciona el environment **IS803 T2.2 - Local**.
 4. Ejecuta primero **00 - Listar pacientes** para obtener un `paciente_id`.
 5. Ejecuta las carpetas P1, P2 y P3.
-6. Toma las capturas solicitadas en la guía.
 
 ## Estructura
 
@@ -139,40 +137,11 @@ database/
 ├─ factories/
 ├─ migrations/
 └─ seeders/
-docs/
-├─ 01-actividad-1-proceso.md
-├─ 02-actividad-2-contrato.md
-├─ 03-actividad-3-implementacion.md
-├─ 04-actividad-4-pruebas.md
-├─ 05-reflexion.md
-├─ 06-diagrama.md
-└─ evidencias/
 postman/
 routes/api.php
 tests/Feature/SolicitudCitaTest.php
 ```
 
-## Documentación de la práctica
-
-- [Actividad 1 · Proceso](docs/01-actividad-1-proceso.md)
-- [Actividad 2 · Contrato JSON](docs/02-actividad-2-contrato.md)
-- [Actividad 3 · Implementación](docs/03-actividad-3-implementacion.md)
-- [Actividad 4 · Pruebas](docs/04-actividad-4-pruebas.md)
-- [Reflexión individual](docs/05-reflexion.md)
-- [Diagrama](docs/06-diagrama.md)
-
-## Checklist de entrega
-
-- [x] Actividad 1: proceso, actores y endpoint documentados.
-- [x] Actividad 2: contrato de solicitud, respuesta y error.
-- [x] Actividad 3: endpoint Laravel con validación y serialización.
-- [x] Actividad 4: pruebas P1 a P5 y colección Postman.
-- [x] Diagrama de intercambio.
-- [x] Reflexión individual.
-- [x] README con instrucciones.
-- [ ] Capturas `p1.png`, `p2.png` y `p3.png` en `docs/evidencias/`.
-- [ ] Subir las capturas al repositorio.
-- [ ] Verificar que el repositorio sea accesible para el docente.
 
 ## Notas de entorno
 
