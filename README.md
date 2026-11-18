@@ -33,7 +33,6 @@ type nul > database\database.sqlite
 php artisan migrate:fresh --seed
 ```
 
-> El archivo `.env` no se versiona. Usa datos ficticios y no publiques tokens ni contraseñas.
 
 ## Ejecución
 
@@ -115,14 +114,6 @@ La colección de Postman también puede ejecutarse sin interfaz gráfica:
 npx newman run postman/IS803-T2.2-SolicitudCita.postman_collection.json -e postman/IS803-T2.2-SolicitudCita.postman_environment.json
 ```
 
-## Postman
-
-1. Importa `postman/IS803-T2.2-SolicitudCita.postman_collection.json`.
-2. Importa `postman/IS803-T2.2-SolicitudCita.postman_environment.json`.
-3. Selecciona el environment **IS803 T2.2 - Local**.
-4. Ejecuta primero **00 - Listar pacientes** para obtener un `paciente_id`.
-5. Ejecuta las carpetas P1, P2 y P3.
-6. Toma las capturas solicitadas en la guía.
 
 ## Estructura
 
