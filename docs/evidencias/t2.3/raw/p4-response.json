@@ -1,1 +1,0 @@
-{"message":"La entrada normalizada no cumple el contrato com\u00fan.","errors":{"hora_fin":["La hora de fin debe ser posterior a la hora de inicio."]},"origen":"servicio_externo"}
