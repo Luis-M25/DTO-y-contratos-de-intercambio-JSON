@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\DTO\SolicitudCitaData;
 use App\Models\SolicitudCita;
+use App\Models\User;
 use Illuminate\Support\Collection;
 
 class SolicitudCitaService
@@ -16,13 +17,24 @@ class SolicitudCitaService
         ]);
     }
 
-    public function listar(): Collection
+    public function listarPara(User $user): Collection
     {
-        return SolicitudCita::with('paciente')->latest()->get();
+        $consulta = SolicitudCita::with('paciente')->latest();
+
+        if ($user->isPaciente()) {
+            $consulta->where('paciente_id', $user->paciente_id);
+        }
+
+        return $consulta->get();
     }
 
     public function obtenerPorId(string $id): ?SolicitudCita
     {
         return SolicitudCita::with('paciente')->find($id);
+    }
+
+    public function eliminar(SolicitudCita $solicitud): void
+    {
+        $solicitud->delete();
     }
 }

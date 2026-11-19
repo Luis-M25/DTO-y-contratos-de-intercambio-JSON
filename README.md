@@ -5,9 +5,12 @@ Repositorio individual de las prácticas del sílabo **IS-803**:
 - **Tema 2.2 · Capa de intercambio de información semántica:** DTO, serialización y contrato JSON para registrar solicitudes de cita.
 - **Tema 2.3 · Patrones de traducción y normalización:** traducción de dos estructuras heterogéneas al mismo contrato, con validación y errores explícitos. Implementado en la rama `practica-2.3-lmendoza`.
 
+- **Tema 2.4 · Seguridad en la integración de sistemas:** autenticación Sanctum, roles y policies, protección de endpoints. Implementado en la rama `practica-2.4-lmendoza`.
+
 - **Estudiante:** Luis Andrés Mendoza Zambrano
 - **Curso / paralelo:** 8.º nivel / A
 - **Fecha T2.3:** 17/11/2026
+- **Fecha T2.4:** 19/11/2026
 - **Repositorio:** https://github.com/Luis-M25/DTO-y-contratos-de-intercambio-JSON
 
 ## Tema 2.3 · Normalización de solicitudes de cita
@@ -99,7 +102,7 @@ php artisan test
 Resultado: **13 pruebas aprobadas (79 aserciones)**, incluidas las 5 pruebas de la práctica 2.2.
 
 ```powershell
-npx newman run postman/IS803-T2.3-Normalizacion.postman_collection.json `
+npx newman run postman/IS803-T2.3-Normalizacion.postman_collection.json \
   -e postman/IS803-T2.3-Normalizacion.postman_environment.json
 ```
 
@@ -136,8 +139,6 @@ php artisan key:generate
 type nul > database\database.sqlite
 php artisan migrate:fresh --seed
 ```
-
-> El archivo `.env` no se versiona. Usa datos ficticios y no publiques tokens ni contraseñas.
 
 ## Ejecución
 
@@ -323,7 +324,25 @@ tests/Feature/
 - [ ] Subir las capturas al repositorio.
 - [ ] Verificar que el repositorio sea accesible para el docente.
 
-## Notas de entorno
+### Tema 2.4
+
+- [ ] Autenticación Sanctum operativa con tokens Bearer.
+- [ ] Roles `paciente`, `asistente`, `doctora` diferenciados y operativos.
+- [ ] Matriz de acceso documentada en `docs/T2.4-seguridad.md`.
+- [ ] Endpoints protegidos con middleware `auth:sanctum` y `role`.
+- [ ] Policies de Laravel implementadas para `SolicitudCita` y `Paciente`.
+- [ ] Paciente solo puede acceder a sus propias solicitudes.
+- [ ] Asistente y doctora tienen permisos extendidos (eliminación solo doctora).
+- [ ] `.env` excluido del repositorio (`gitignore`), sin secretos en capturas.
+- [ ] Pruebas P1–P4 (positivas y negativas) documentadas y passing.
+- [ ] Colección Postman `IS803-T2.4-Seguridad` ejecutable con Newman (0 fallos).
+- [ ] Evidencias de pruebas (capturas P1–P4) en `docs/evidencias/t2.4/`.
+- [ ] Reflexión individual en `docs/T2.4-seguridad.md`.
+- [ ] `README.md` actualizado con nuevos endpoints y requisitos.
+
+## Checklist de entrega (continuación)
+
+### Notas de entorno
 
 - Se habilitaron `pdo_sqlite` y `sqlite3` en `php.ini`; el respaldo quedó en `php.ini.bak-is803`.
 - El servidor local se inicia con `start-server.bat`, con `php -S 127.0.0.1:8000 -t public router.php` o con `php -S 127.0.0.1:8000 -t public public/index.php`.

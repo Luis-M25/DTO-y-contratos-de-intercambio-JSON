@@ -11,6 +11,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             PacienteSeeder::class,
             SolicitudCitaSeeder::class,
+            UsuarioSeeder::class,
         ]);
     }
 }

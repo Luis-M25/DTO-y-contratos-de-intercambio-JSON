@@ -1,0 +1,338 @@
+{
+  "info": {
+    "_postman_id": "0a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d",
+    "name": "IS803 T2.4 - Seguridad",
+    "schema": "https://schema.getpostman.com/schema/collection/v2.1.0",
+    "description": "Colección de pruebas de seguridad para la práctica 2.4 - Autenticación, roles y autorización en API Laravel",
+    "auth": "bearer",
+    "variables": [
+      {
+        "key": "base_url",
+        "value": "http://127.0.0.1:8000",
+        "type": "string",
+        "enabled": true
+      },
+      {
+        "key": "demo_doctor_email",
+        "value": "doctora@demo.test",
+        "type": "string",
+        "enabled": true
+      },
+      {
+        "key": "demo_doctor_password",
+        "value": "DemoPass123!",
+        "type": "string",
+        "enabled": true
+      },
+      {
+        "key": "demo_assistant_email",
+        "value": "asistente@demo.test",
+        "type": "string",
+        "enabled": true
+      },
+      {
+        "key": "demo_assistant_password",
+        "value": "DemoPass123!",
+        "type": "string",
+        "enabled": true
+      },
+      {
+        "key": "demo_patient_a_email",
+        "value": "paciente.a@demo.test",
+        "type": "string",
+        "enabled": true
+      },
+      {
+        "key": "demo_patient_a_password",
+        "value": "DemoPass123!",
+        "type": "string",
+        "enabled": true
+      },
+      {
+        "key": "demo_patient_b_email",
+        "value": "paciente.b@demo.test",
+        "type": "string",
+        "enabled": true
+      },
+      {
+        "key": "demo_patient_b_password",
+        "value": "DemoPass123!",
+        "type": "string",
+        "enabled": true
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "T4-P1-Login-Doctora",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "json",
+          "json": [
+            {
+              "id": "email",
+              "type": "text",
+              "value": "{{demo_doctor_email}}"
+            },
+            {
+              "id": "password",
+              "type": "text",
+              "value": "{{demo_doctor_password}}"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response has token\", function () {",
+              "  pm.response.json().data.token && pm.response.to.not.be.null;",
+              "});",
+              "",
+              "pm.test(\"Role is doctora\", function () {",
+              "  pm.response.json().data.user.role && pm.response.json().data.user.role === 'doctora';",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "T4-P2-Sin-Token",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solicitudes-cita"
+          ]
+        },
+        "description": "Petición sin token de autorización; espera código 401"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": [
+            "pm.test(\"Status code is 401\", function () {",
+            "  pm.response.to.have.status(401);",
+            "});"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "T4-P3-Paciente-Ajeno",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNGQxMTExMTgtNGQxMi00MzlhLWEwZWYtZTBlY2VlZTQ1ZTQ1IiwidXNlcl9vZmYOklcOiJkYXRlIjoiTWFpbiBBbG9uZyIsImV4cGlyZXNfdXNlcmluZyI6MTc0NDkyNTQwMC4wMDAwMDAwLCJhY2NvdW50X2lkIjoiNGQxMTExMTgtNGQxMi00MzlhLWEwZWYtZTBlY2VlZTQ1ZTQ1In0.DEMO_TOKEN_PLACEHOLDER",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita/11111111-1111-4111-8111-111111111111",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solicitudes-cita",
+            ":id"
+          ]
+        },
+        "description": "Token de paciente A intentando solicitud de paciente B; espera código 403"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": [
+            "pm.test(\"Status code is 403\", function () {",
+            "  pm.response.to.have.status(403);",
+            "});"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "T4-P4-Doctora-Eliminar",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNGQxMTExMTgtNGQxMi00MzlhLWEwZWYtZTBlY2VlZTQ1ZTQ1IiwidXNlcl9vZmYOklcOiJkYXRlIjoiTWFpbiBBbG9uZyIsImV4cGlyZXNfdXNlcmluZyI3NDQ5MjU0MDAuMDAwMDAwMCSJ9.DEMO_TOKEN_PLACEHOLDER2",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita/11111111-1111-4111-8111-111111111111",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solicitudes-cita",
+            ":id"
+          ]
+        },
+        "description": "Token de doctora eliminando solicitud; espera código 204"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": [
+            "pm.test(\"Status code is 204\", function () {",
+            "  pm.response.to.have.status(204);",
+            "});"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "T4-P5-Logout",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNGQxMTExMTgtNGQxMi00MzlhLWEwZWYtZTBlY2VlZTQ1ZTQ1IiwidXNlcl9vZmYOklcOiJkYXRlIjoiTWFpbiBBbG9uZyIsImV4cGlyZXNfdXNlcmluZyI3NDQ5MjU0MDAuMDAwMDAwMCSJ9.DEMO_TOKEN_PLACEHOLDER3",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/auth/logout",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "logout"
+          ]
+        },
+        "description": "Cerrar sesión y revocar token"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": [
+            "pm.test(\"Status code is 200\", function () {",
+            "  pm.response.to.have.status(200);",
+            "});",
+              "pm.test(\"Token invalidado\", function () {",
+            "  pm.response.json().message && pm.response.to.have.property('message');",
+            "});",
+              "pm.request.to.deleteHeaders(\"Authorization\");",
+              "pm.sendRequest({",
+              "  url: \"{{base_url}}/api/v1/auth/me\",",
+              "  method: 'GET'",
+              "}).then(function (resp) {",
+              "  pm.test(\"Me returns 401 after logout\", function () {",
+              "    resp.to.have.status(401);",
+              "  });",
+              "});"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "name": "T4-P6-Importar-Asistente",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNGQxMTExMTgtNGQxMi00MzlhLWEwZWYtZTBlY2VlZTQ1ZTQ1IiwidXNlcl9vZmYOklcOiJkYXRlIjoiTWFpbiBBbG9uZyIsImV4cGlyZXNfdXNlcmluZyI3NDQ5MjU0MDAuMDAwMDAwMCSJ9.DEMO_TOKEN_PLACEHOLDER4",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "json",
+          "json": [
+            {
+              "id": "origen",
+              "type": "text",
+              "value": "formulario_web"
+            },
+            {
+              "id": "datos",
+              "type": "text",
+              "value": "{\"cedula\":\"0102030405\",\"fechaCita\":\"20/11/2026\",\"horaInicio\":\"3:30 PM\",\"horaFin\":\"4:00 PM\",\"tipoCita\":\"Consulta\",\"motivo\":\"Dolor dental\",\"observacion\":\"\"}"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita/importar",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "solicitudes-cita",
+            "importar"
+          ]
+        },
+        "description": "Asistente importando cita desde origen A"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": [
+            "pm.test(\"Status code is 201\", function () {",
+            "  pm.response.to.have.status(201);",
+            "});",
+            "pm.test(\"Data has correct fields\", function () {",
+            "  var json = pm.response.json();",
+            "  pm.expect(json.data).to.have.property('paciente_id');",
+            "  pm.expect(json.data).to.have.property('fecha');",
+            "  pm.expect(json.data).to.have.property('hora_inicio');",
+            "  pm.expect(json.data).to.have.property('hora_fin');",
+            "  pm.expect(json.data).to.have.property('tipo');",
+            "  pm.expect(json.data).to.have.property('motivo');",
+            "  pm.expect(json.data).to.have.property('canal');",
+            "  pm.expect(json.data.canal).to.equal('web');",
+            "});"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -11,6 +11,8 @@ class PacienteController extends Controller
 {
     public function index(): AnonymousResourceCollection
     {
+        $this->authorize('viewAny', Paciente::class);
+
         return PacienteResource::collection(
             Paciente::orderBy('nombres')->get()
         );
