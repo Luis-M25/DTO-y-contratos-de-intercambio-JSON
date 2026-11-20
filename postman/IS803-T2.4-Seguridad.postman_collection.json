@@ -3,103 +3,32 @@
     "_postman_id": "0a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d",
     "name": "IS803 T2.4 - Seguridad",
     "schema": "https://schema.getpostman.com/schema/collection/v2.1.0",
-    "description": "Colección de pruebas de seguridad para la práctica 2.4 - Autenticación, roles y autorización en API Laravel",
-    "auth": "bearer",
-    "variables": [
-      {
-        "key": "base_url",
-        "value": "http://127.0.0.1:8000",
-        "type": "string",
-        "enabled": true
-      },
-      {
-        "key": "demo_doctor_email",
-        "value": "doctora@demo.test",
-        "type": "string",
-        "enabled": true
-      },
-      {
-        "key": "demo_doctor_password",
-        "value": "DemoPass123!",
-        "type": "string",
-        "enabled": true
-      },
-      {
-        "key": "demo_assistant_email",
-        "value": "asistente@demo.test",
-        "type": "string",
-        "enabled": true
-      },
-      {
-        "key": "demo_assistant_password",
-        "value": "DemoPass123!",
-        "type": "string",
-        "enabled": true
-      },
-      {
-        "key": "demo_patient_a_email",
-        "value": "paciente.a@demo.test",
-        "type": "string",
-        "enabled": true
-      },
-      {
-        "key": "demo_patient_a_password",
-        "value": "DemoPass123!",
-        "type": "string",
-        "enabled": true
-      },
-      {
-        "key": "demo_patient_b_email",
-        "value": "paciente.b@demo.test",
-        "type": "string",
-        "enabled": true
-      },
-      {
-        "key": "demo_patient_b_password",
-        "value": "DemoPass123!",
-        "type": "string",
-        "enabled": true
-      }
-    ]
+    "description": "Colección de pruebas P1-P6 para la práctica 2.4: autenticación Sanctum, roles y autorización por propietario. Los tokens se capturan en tiempo de ejecución; el environment no contiene contraseñas."
   },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "doctora_token", "value": "" },
+    { "key": "asistente_token", "value": "" },
+    { "key": "paciente_a_token", "value": "" },
+    { "key": "paciente_b_token", "value": "" },
+    { "key": "paciente_a_id", "value": "" },
+    { "key": "solicitud_id", "value": "" }
+  ],
   "item": [
     {
-      "name": "T4-P1-Login-Doctora",
+      "name": "00 Login doctora",
       "request": {
         "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json",
-            "type": "text"
-          }
-        ],
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
-          "mode": "json",
-          "json": [
-            {
-              "id": "email",
-              "type": "text",
-              "value": "{{demo_doctor_email}}"
-            },
-            {
-              "id": "password",
-              "type": "text",
-              "value": "{{demo_doctor_password}}"
-            }
-          ]
+          "mode": "raw",
+          "raw": "{\"email\":\"{{demo_doctora_email}}\",\"password\":\"{{demo_doctora_password}}\"}",
+          "options": { "raw": { "language": "json" } }
         },
         "url": {
           "raw": "{{base_url}}/api/v1/auth/login",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "auth",
-            "login"
-          ]
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "auth", "login"]
         }
       },
       "event": [
@@ -107,230 +36,323 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Status code is 200\", function () {",
-              "  pm.response.to.have.status(200);",
-              "});",
-              "",
-              "pm.test(\"Response has token\", function () {",
-              "  pm.response.json().data.token && pm.response.to.not.be.null;",
-              "});",
-              "",
-              "pm.test(\"Role is doctora\", function () {",
-              "  pm.response.json().data.user.role && pm.response.json().data.user.role === 'doctora';",
-              "});"
+              "pm.test('Login doctora: 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.test('Entrega token Bearer', function () { pm.expect(json.data.token_type).to.eql('Bearer'); pm.expect(json.data.access_token).to.be.a('string'); });",
+              "pm.test('Rol doctora', function () { pm.expect(json.data.user.role).to.eql('doctora'); });",
+              "pm.test('No devuelve password', function () { pm.expect(json.data.user).to.not.have.property('password'); });",
+              "pm.collectionVariables.set('doctora_token', json.data.access_token);"
             ]
           }
         }
       ]
     },
     {
-      "name": "T4-P2-Sin-Token",
+      "name": "00 Login asistente",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"{{demo_asistente_email}}\",\"password\":\"{{demo_asistente_password}}\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/auth/login",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "auth", "login"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Login asistente: 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.test('Rol asistente', function () { pm.expect(json.data.user.role).to.eql('asistente'); });",
+              "pm.collectionVariables.set('asistente_token', json.data.access_token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "00 Login paciente A",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"{{demo_paciente_a_email}}\",\"password\":\"{{demo_paciente_a_password}}\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/auth/login",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "auth", "login"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Login paciente A: 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.test('Rol paciente A', function () { pm.expect(json.data.user.role).to.eql('paciente'); pm.expect(json.data.user.paciente_id).to.be.a('string'); });",
+              "pm.collectionVariables.set('paciente_a_token', json.data.access_token);",
+              "pm.collectionVariables.set('paciente_a_id', json.data.user.paciente_id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "00 Login paciente B",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"{{demo_paciente_b_email}}\",\"password\":\"{{demo_paciente_b_password}}\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/auth/login",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "auth", "login"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Login paciente B: 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.collectionVariables.set('paciente_b_token', json.data.access_token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "P1 Doctora lista solicitudes",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{doctora_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "solicitudes-cita"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('P1: acceso permitido (200)', function () { pm.response.to.have.status(200); });",
+              "pm.test('P1: respuesta con arreglo data', function () { pm.expect(pm.response.json().data).to.be.an('array'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "P1b Paciente A crea su solicitud",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{paciente_a_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"paciente_id\":\"{{paciente_a_id}}\",\"fecha\":\"2026-12-15\",\"hora_inicio\":\"09:00\",\"hora_fin\":\"09:30\",\"tipo\":\"consulta\",\"motivo\":\"Control de seguridad\",\"canal\":\"web\",\"observacion\":\"Prueba Postman\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "solicitudes-cita"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('P1b: creación propia (201)', function () { pm.response.to.have.status(201); });",
+              "var json = pm.response.json();",
+              "pm.test('P1b: paciente correcto', function () { pm.expect(json.data.paciente_id).to.eql(pm.collectionVariables.get('paciente_a_id')); });",
+              "pm.collectionVariables.set('solicitud_id', json.data.solicitud_id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "P2 Sin token",
       "request": {
         "method": "GET",
         "url": {
           "raw": "{{base_url}}/api/v1/solicitudes-cita",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "solicitudes-cita"
-          ]
-        },
-        "description": "Petición sin token de autorización; espera código 401"
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "solicitudes-cita"]
+        }
       },
       "event": [
         {
           "listen": "test",
-          "script": [
-            "pm.test(\"Status code is 401\", function () {",
-            "  pm.response.to.have.status(401);",
-            "});"
-          ]
+          "script": {
+            "exec": [
+              "pm.test('P2: sin token devuelve 401', function () { pm.response.to.have.status(401); });"
+            ]
+          }
         }
       ]
     },
     {
-      "name": "T4-P3-Paciente-Ajeno",
+      "name": "P3 Paciente B intenta solicitud de A",
       "request": {
         "method": "GET",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNGQxMTExMTgtNGQxMi00MzlhLWEwZWYtZTBlY2VlZTQ1ZTQ1IiwidXNlcl9vZmYOklcOiJkYXRlIjoiTWFpbiBBbG9uZyIsImV4cGlyZXNfdXNlcmluZyI6MTc0NDkyNTQwMC4wMDAwMDAwLCJhY2NvdW50X2lkIjoiNGQxMTExMTgtNGQxMi00MzlhLWEwZWYtZTBlY2VlZTQ1ZTQ1In0.DEMO_TOKEN_PLACEHOLDER",
-            "type": "text"
-          }
-        ],
+        "header": [{ "key": "Authorization", "value": "Bearer {{paciente_b_token}}" }],
         "url": {
-          "raw": "{{base_url}}/api/v1/solicitudes-cita/11111111-1111-4111-8111-111111111111",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "solicitudes-cita",
-            ":id"
-          ]
-        },
-        "description": "Token de paciente A intentando solicitud de paciente B; espera código 403"
+          "raw": "{{base_url}}/api/v1/solicitudes-cita/{{solicitud_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "solicitudes-cita", "{{solicitud_id}}"]
+        }
       },
       "event": [
         {
           "listen": "test",
-          "script": [
-            "pm.test(\"Status code is 403\", function () {",
-            "  pm.response.to.have.status(403);",
-            "});"
-          ]
+          "script": {
+            "exec": [
+              "pm.test('P3: solicitud ajena devuelve 403', function () { pm.response.to.have.status(403); });"
+            ]
+          }
         }
       ]
     },
     {
-      "name": "T4-P4-Doctora-Eliminar",
+      "name": "P3b Asistente no puede eliminar",
       "request": {
         "method": "DELETE",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNGQxMTExMTgtNGQxMi00MzlhLWEwZWYtZTBlY2VlZTQ1ZTQ1IiwidXNlcl9vZmYOklcOiJkYXRlIjoiTWFpbiBBbG9uZyIsImV4cGlyZXNfdXNlcmluZyI3NDQ5MjU0MDAuMDAwMDAwMCSJ9.DEMO_TOKEN_PLACEHOLDER2",
-            "type": "text"
-          }
-        ],
+        "header": [{ "key": "Authorization", "value": "Bearer {{asistente_token}}" }],
         "url": {
-          "raw": "{{base_url}}/api/v1/solicitudes-cita/11111111-1111-4111-8111-111111111111",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "solicitudes-cita",
-            ":id"
-          ]
-        },
-        "description": "Token de doctora eliminando solicitud; espera código 204"
+          "raw": "{{base_url}}/api/v1/solicitudes-cita/{{solicitud_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "solicitudes-cita", "{{solicitud_id}}"]
+        }
       },
       "event": [
         {
           "listen": "test",
-          "script": [
-            "pm.test(\"Status code is 204\", function () {",
-            "  pm.response.to.have.status(204);",
-            "});"
-          ]
+          "script": {
+            "exec": [
+              "pm.test('P3b: asistente sin permiso de borrado (403)', function () { pm.response.to.have.status(403); });"
+            ]
+          }
         }
       ]
     },
     {
-      "name": "T4-P5-Logout",
+      "name": "P4 Doctora elimina solicitud",
+      "request": {
+        "method": "DELETE",
+        "header": [{ "key": "Authorization", "value": "Bearer {{doctora_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/solicitudes-cita/{{solicitud_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "solicitudes-cita", "{{solicitud_id}}"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('P4: doctora elimina (204)', function () { pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "P5 Logout doctora",
       "request": {
         "method": "POST",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNGQxMTExMTgtNGQxMi00MzlhLWEwZWYtZTBlY2VlZTQ1ZTQ1IiwidXNlcl9vZmYOklcOiJkYXRlIjoiTWFpbiBBbG9uZyIsImV4cGlyZXNfdXNlcmluZyI3NDQ5MjU0MDAuMDAwMDAwMCSJ9.DEMO_TOKEN_PLACEHOLDER3",
-            "type": "text"
-          }
-        ],
+        "header": [{ "key": "Authorization", "value": "Bearer {{doctora_token}}" }],
         "url": {
           "raw": "{{base_url}}/api/v1/auth/logout",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "auth",
-            "logout"
-          ]
-        },
-        "description": "Cerrar sesión y revocar token"
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "auth", "logout"]
+        }
       },
       "event": [
         {
           "listen": "test",
-          "script": [
-            "pm.test(\"Status code is 200\", function () {",
-            "  pm.response.to.have.status(200);",
-            "});",
-              "pm.test(\"Token invalidado\", function () {",
-            "  pm.response.json().message && pm.response.to.have.property('message');",
-            "});",
-              "pm.request.to.deleteHeaders(\"Authorization\");",
-              "pm.sendRequest({",
-              "  url: \"{{base_url}}/api/v1/auth/me\",",
-              "  method: 'GET'",
-              "}).then(function (resp) {",
-              "  pm.test(\"Me returns 401 after logout\", function () {",
-              "    resp.to.have.status(401);",
-              "  });",
-              "});"
+          "script": {
+            "exec": [
+              "pm.test('P5: logout correcto (200)', function () { pm.response.to.have.status(200); });"
             ]
-          ]
+          }
         }
       ]
     },
     {
-      "name": "T4-P6-Importar-Asistente",
+      "name": "P5b Token revocado",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{doctora_token}}" }],
+        "url": {
+          "raw": "{{base_url}}/api/v1/auth/me",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "auth", "me"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('P5b: token revocado devuelve 401', function () { pm.response.to.have.status(401); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "P6 Asistente importa solicitud",
       "request": {
         "method": "POST",
         "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNGQxMTExMTgtNGQxMi00MzlhLWEwZWYtZTBlY2VlZTQ1ZTQ1IiwidXNlcl9vZmYOklcOiJkYXRlIjoiTWFpbiBBbG9uZyIsImV4cGlyZXNfdXNlcmluZyI3NDQ5MjU0MDAuMDAwMDAwMCSJ9.DEMO_TOKEN_PLACEHOLDER4",
-            "type": "text"
-          }
+          { "key": "Authorization", "value": "Bearer {{asistente_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
         ],
         "body": {
-          "mode": "json",
-          "json": [
-            {
-              "id": "origen",
-              "type": "text",
-              "value": "formulario_web"
-            },
-            {
-              "id": "datos",
-              "type": "text",
-              "value": "{\"cedula\":\"0102030405\",\"fechaCita\":\"20/11/2026\",\"horaInicio\":\"3:30 PM\",\"horaFin\":\"4:00 PM\",\"tipoCita\":\"Consulta\",\"motivo\":\"Dolor dental\",\"observacion\":\"\"}"
-            }
-          ]
+          "mode": "raw",
+          "raw": "{\"origen\":\"formulario_web\",\"datos\":{\"cedula\":\"0102030405\",\"fechaCita\":\"16/12/2026\",\"horaInicio\":\"3:30 PM\",\"horaFin\":\"4:00 PM\",\"tipoCita\":\"Consulta\",\"motivo\":\"Dolor dental\",\"observacion\":\"\"}}",
+          "options": { "raw": { "language": "json" } }
         },
         "url": {
           "raw": "{{base_url}}/api/v1/solicitudes-cita/importar",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "solicitudes-cita",
-            "importar"
-          ]
-        },
-        "description": "Asistente importando cita desde origen A"
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "solicitudes-cita", "importar"]
+        }
       },
       "event": [
         {
           "listen": "test",
-          "script": [
-            "pm.test(\"Status code is 201\", function () {",
-            "  pm.response.to.have.status(201);",
-            "});",
-            "pm.test(\"Data has correct fields\", function () {",
-            "  var json = pm.response.json();",
-            "  pm.expect(json.data).to.have.property('paciente_id');",
-            "  pm.expect(json.data).to.have.property('fecha');",
-            "  pm.expect(json.data).to.have.property('hora_inicio');",
-            "  pm.expect(json.data).to.have.property('hora_fin');",
-            "  pm.expect(json.data).to.have.property('tipo');",
-            "  pm.expect(json.data).to.have.property('motivo');",
-            "  pm.expect(json.data).to.have.property('canal');",
-            "  pm.expect(json.data.canal).to.equal('web');",
-            "});"
-          ]
+          "script": {
+            "exec": [
+              "pm.test('P6: importación como asistente (201)', function () { pm.response.to.have.status(201); });",
+              "var json = pm.response.json();",
+              "pm.test('P6: contrato normalizado', function () { pm.expect(json.data.canal).to.eql('web'); pm.expect(json.data.fecha).to.eql('2026-12-16'); });"
+            ]
+          }
         }
       ]
     }

@@ -3,8 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\Paciente;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class SolicitudCitaTest extends TestCase
@@ -15,6 +17,8 @@ class SolicitudCitaTest extends TestCase
     {
         parent::setUp();
         Carbon::setTestNow('2026-11-15 10:00:00');
+
+        Sanctum::actingAs(User::factory()->doctora()->create());
     }
 
     protected function tearDown(): void

@@ -12,15 +12,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // La API no tiene una vista de login: las peticiones no autenticadas
+        // deben recibir 401 JSON, no un intento de redirección a /login.
+        $middleware->redirectGuestsTo(fn () => null);
+
+        $middleware->alias([
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
             fn ($request, $e) => $request->is('api/*') || $request->expectsJson()
         );
-    })
-    ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->alias([
-            'role' => \App\Http\Middleware\RoleMiddleware::class,
-        ]);
     })->create();

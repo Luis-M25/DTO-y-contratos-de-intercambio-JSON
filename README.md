@@ -283,6 +283,12 @@ tests/Feature/
 
 ## Documentación de la práctica
 
+### Tema 2.4
+
+- [Documento completo de seguridad](docs/T2.4-seguridad.md)
+- [Evidencias de pruebas](docs/evidencias/t2.4/)
+- [Colección Postman](postman/IS803-T2.4-Seguridad.postman_collection.json)
+
 ### Tema 2.3
 
 - [Documento completo de normalización](docs/T2.3-normalizacion.md)
@@ -326,19 +332,19 @@ tests/Feature/
 
 ### Tema 2.4
 
-- [ ] Autenticación Sanctum operativa con tokens Bearer.
-- [ ] Roles `paciente`, `asistente`, `doctora` diferenciados y operativos.
-- [ ] Matriz de acceso documentada en `docs/T2.4-seguridad.md`.
-- [ ] Endpoints protegidos con middleware `auth:sanctum` y `role`.
-- [ ] Policies de Laravel implementadas para `SolicitudCita` y `Paciente`.
-- [ ] Paciente solo puede acceder a sus propias solicitudes.
-- [ ] Asistente y doctora tienen permisos extendidos (eliminación solo doctora).
-- [ ] `.env` excluido del repositorio (`gitignore`), sin secretos en capturas.
-- [ ] Pruebas P1–P4 (positivas y negativas) documentadas y passing.
-- [ ] Colección Postman `IS803-T2.4-Seguridad` ejecutable con Newman (0 fallos).
-- [ ] Evidencias de pruebas (capturas P1–P4) en `docs/evidencias/t2.4/`.
-- [ ] Reflexión individual en `docs/T2.4-seguridad.md`.
-- [ ] `README.md` actualizado con nuevos endpoints y requisitos.
+- [x] Autenticación Sanctum operativa con tokens Bearer.
+- [x] Roles `paciente`, `asistente`, `doctora` diferenciados y operativos.
+- [x] Matriz de acceso documentada en `docs/T2.4-seguridad.md`.
+- [x] Endpoints protegidos con middleware `auth:sanctum` y `role`.
+- [x] Policies de Laravel implementadas para `SolicitudCita` y `Paciente`.
+- [x] Paciente solo puede acceder a sus propias solicitudes.
+- [x] Asistente y doctora tienen permisos extendidos (eliminación solo doctora).
+- [x] `.env` excluido del repositorio (`gitignore`), sin secretos en capturas.
+- [x] Pruebas P1–P9 (positivas y negativas) documentadas y passing: 22 tests, 120 aserciones.
+- [x] Colección Postman `IS803-T2.4-Seguridad` ejecutable con Newman: 13 solicitudes, 21 aserciones, 0 fallos.
+- [x] Evidencias de pruebas en `docs/evidencias/t2.4/` (salidas PHPUnit, Newman y figuras P1–P4).
+- [x] Reflexión individual en `docs/T2.4-seguridad.md`.
+- [x] `README.md` actualizado con nuevos endpoints y requisitos.
 
 ## Checklist de entrega (continuación)
 

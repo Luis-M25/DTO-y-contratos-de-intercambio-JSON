@@ -6,47 +6,41 @@ use App\Http\Controllers\Api\V1\SolicitudCitaController;
 use App\Http\Controllers\Api\V1\SolicitudCitaImportController;
 use Illuminate\Support\Facades\Route;
 
-// Rutas públicas (autenticación)
-Route::prefix('auth')->group(function () {
-    Route::post('/login', [AuthController::class, 'login'])
-        ->middleware('throttle:auth-login');
-
-    Route::post('/register', [AuthController::class, 'login']); // Alias para compatibilidad con guías anteriores
-});
-
-// Rutas protegidas por Sanctum
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/auth/me', [AuthController::class, 'me']);
-
-    Route::post('/auth/logout', [AuthController::class, 'logout']);
-
-    // Usuarios (doctora y asistente)
-    Route::middleware('role:doctora,asistente')->prefix('usuarios')->group(function () {
-        Route::get('/', [PacienteController::class, 'index']);
+Route::prefix('v1')->group(function () {
+    // Rutas públicas (autenticación)
+    Route::prefix('auth')->group(function () {
+        Route::post('/login', [AuthController::class, 'login'])
+            ->middleware('throttle:auth-login');
     });
 
-    // Pacientes: acceso propio
-    Route::middleware('role:paciente')->prefix('pacientes')->group(function () {
-        Route::get('/mi-perfil', [PacienteController::class, 'index']); // placeholder
-    });
+    // Rutas protegidas por Sanctum
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/auth/me', [AuthController::class, 'me']);
 
-    // Solicitudes de cita
-    Route::prefix('solicitudes-cita')->group(function () {
-        // Endpoint de importación normalizada (TT.2.3)
-        Route::post('/importar', [SolicitudCitaImportController::class, 'store'])
+        Route::post('/auth/logout', [AuthController::class, 'logout']);
+
+        // Pacientes (doctora y asistente)
+        Route::get('/pacientes', [PacienteController::class, 'index'])
             ->middleware('role:doctora,asistente');
 
-        // Listado
-        Route::get('/', [SolicitudCitaController::class, 'index']);
+        // Solicitudes de cita
+        Route::prefix('solicitudes-cita')->group(function () {
+            // Endpoint de importación normalizada (TT.2.3)
+            Route::post('/importar', [SolicitudCitaImportController::class, 'store'])
+                ->middleware('role:doctora,asistente');
 
-        // Creación
-        Route::post('/', [SolicitudCitaController::class, 'store']);
+            // Listado
+            Route::get('/', [SolicitudCitaController::class, 'index']);
 
-        // Consulta individual
-        Route::get('/{id}', [SolicitudCitaController::class, 'show']);
+            // Creación
+            Route::post('/', [SolicitudCitaController::class, 'store']);
 
-        // Eliminación (solo doctora)
-        Route::delete('/{id}', [SolicitudCitaController::class, 'destroy'])
-            ->middleware('role:doctora');
+            // Consulta individual
+            Route::get('/{id}', [SolicitudCitaController::class, 'show']);
+
+            // Eliminación (solo doctora)
+            Route::delete('/{id}', [SolicitudCitaController::class, 'destroy'])
+                ->middleware('role:doctora');
+        });
     });
 });
