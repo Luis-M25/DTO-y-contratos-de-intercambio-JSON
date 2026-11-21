@@ -10,7 +10,7 @@ Repositorio individual de las prácticas del sílabo **IS-803**:
 - **Estudiante:** Luis Andrés Mendoza Zambrano
 - **Curso / paralelo:** 8.º nivel / A
 - **Fecha T2.3:** 17/11/2026
-- **Fecha T2.4:** 19/11/2026
+- **Fecha T2.4:** 20/11/2026
 - **Repositorio:** https://github.com/Luis-M25/DTO-y-contratos-de-intercambio-JSON
 
 ## Tema 2.3 · Normalización de solicitudes de cita
@@ -225,25 +225,6 @@ npx newman run postman/IS803-T2.3-Normalizacion.postman_collection.json -e postm
 npx newman run postman/IS803-T2.2-SolicitudCita.postman_collection.json -e postman/IS803-T2.2-SolicitudCita.postman_environment.json
 ```
 
-## Postman
-
-### Práctica 2.3
-
-1. Importa `postman/IS803-T2.3-Normalizacion.postman_collection.json`.
-2. Importa `postman/IS803-T2.3-Normalizacion.postman_environment.json`.
-3. Selecciona el environment **IS803 T2.3 - Local**.
-4. Ejecuta **P1** (formulario web) y **P2** (servicio externo). P2 compara sus campos con los de P1.
-5. Ejecuta **P3–P6** para verificar los errores explícitos.
-
-### Práctica 2.2
-
-1. Importa `postman/IS803-T2.2-SolicitudCita.postman_collection.json`.
-2. Importa `postman/IS803-T2.2-SolicitudCita.postman_environment.json`.
-3. Selecciona el environment **IS803 T2.2 - Local**.
-4. Ejecuta primero **00 - Listar pacientes** para obtener un `paciente_id`.
-5. Ejecuta las carpetas P1, P2 y P3.
-6. Toma las capturas solicitadas en la guía.
-
 ## Estructura
 
 ```
@@ -264,16 +245,6 @@ database/
 ├─ factories/
 ├─ migrations/
 └─ seeders/
-docs/
-├─ T2.3-normalizacion.md
-├─ 01-actividad-1-proceso.md
-├─ 02-actividad-2-contrato.md
-├─ 03-actividad-3-implementacion.md
-├─ 04-actividad-4-pruebas.md
-├─ 05-reflexion.md
-├─ 06-diagrama.md
-└─ evidencias/
-   └─ t2.3/
 postman/
 routes/api.php
 tests/Feature/
@@ -281,72 +252,6 @@ tests/Feature/
 └─ SolicitudCitaTest.php
 ```
 
-## Documentación de la práctica
-
-### Tema 2.4
-
-- [Documento completo de seguridad](docs/T2.4-seguridad.md)
-- [Evidencias de pruebas](docs/evidencias/t2.4/)
-- [Colección Postman](postman/IS803-T2.4-Seguridad.postman_collection.json)
-
-### Tema 2.3
-
-- [Documento completo de normalización](docs/T2.3-normalizacion.md)
-- [Evidencias P1, P2, P3 y diagrama](docs/evidencias/t2.3/)
-
-### Tema 2.2
-
-- [Actividad 1 · Proceso](docs/01-actividad-1-proceso.md)
-- [Actividad 2 · Contrato JSON](docs/02-actividad-2-contrato.md)
-- [Actividad 3 · Implementación](docs/03-actividad-3-implementacion.md)
-- [Actividad 4 · Pruebas](docs/04-actividad-4-pruebas.md)
-- [Reflexión individual](docs/05-reflexion.md)
-- [Diagrama](docs/06-diagrama.md)
-
-## Checklist de entrega
-
-### Tema 2.3
-
-- [x] Actividad 1: dos orígenes, cinco diferencias y contrato común.
-- [x] Actividad 2: tabla de mapeo A / B / contrato común.
-- [x] Actividad 3: `NormalizadorSolicitudCita` con un método por origen.
-- [x] Actividad 3: validación estricta y errores explícitos.
-- [x] Actividad 4: P1 y P2 generan el mismo contrato clínico.
-- [x] Pruebas P1–P8 (13 pruebas, 79 aserciones).
-- [x] Colección Postman y ejecución Newman (6 solicitudes, 13 aserciones, 0 fallos).
-- [x] Capturas P1, P2, P3 y diagrama en `docs/evidencias/t2.3/`.
-- [x] Documentación `docs/T2.3-normalizacion.md`.
-
-### Tema 2.2
-
-- [x] Actividad 1: proceso, actores y endpoint documentados.
-- [x] Actividad 2: contrato de solicitud, respuesta y error.
-- [x] Actividad 3: endpoint Laravel con validación y serialización.
-- [x] Actividad 4: pruebas P1 a P5 y colección Postman.
-- [x] Diagrama de intercambio.
-- [x] Reflexión individual.
-- [x] README con instrucciones.
-- [ ] Capturas `p1.png`, `p2.png` y `p3.png` en `docs/evidencias/`.
-- [ ] Subir las capturas al repositorio.
-- [ ] Verificar que el repositorio sea accesible para el docente.
-
-### Tema 2.4
-
-- [x] Autenticación Sanctum operativa con tokens Bearer.
-- [x] Roles `paciente`, `asistente`, `doctora` diferenciados y operativos.
-- [x] Matriz de acceso documentada en `docs/T2.4-seguridad.md`.
-- [x] Endpoints protegidos con middleware `auth:sanctum` y `role`.
-- [x] Policies de Laravel implementadas para `SolicitudCita` y `Paciente`.
-- [x] Paciente solo puede acceder a sus propias solicitudes.
-- [x] Asistente y doctora tienen permisos extendidos (eliminación solo doctora).
-- [x] `.env` excluido del repositorio (`gitignore`), sin secretos en capturas.
-- [x] Pruebas P1–P9 (positivas y negativas) documentadas y passing: 22 tests, 120 aserciones.
-- [x] Colección Postman `IS803-T2.4-Seguridad` ejecutable con Newman: 13 solicitudes, 21 aserciones, 0 fallos.
-- [x] Evidencias de pruebas en `docs/evidencias/t2.4/` (salidas PHPUnit, Newman y figuras P1–P4).
-- [x] Reflexión individual en `docs/T2.4-seguridad.md`.
-- [x] `README.md` actualizado con nuevos endpoints y requisitos.
-
-## Checklist de entrega (continuación)
 
 ### Notas de entorno
 
